@@ -1,14 +1,15 @@
-import java.awt.List;
 import java.io.*;
 import java.util.*;
-public class MiniMaxOpening
-{
+import java.awt.*;
+
+//majority of this code is copied from MiniMaxOpening
+public class ABOpening {
     private static int positions_eval = 0;
     private static int  minimax_estimate = 0;
 
 
 
-// main
+    // main
     public static void main(String[] args)
     {
         // TODO Auto-generated method stub
@@ -30,28 +31,20 @@ public class MiniMaxOpening
                 char[] board = str.toCharArray();
 
                 //starting the game in min max opening
-                MiniMaxOpening opening = new MiniMaxOpening();
+                ABOpening opening = new ABOpening();
 
                 //making sure all the files are working properly
-                System.out.println("board from file : "+new String(board));
-
-                //new board after its swapped
-                char[] board2 = opening.tempb(board);
+                //System.out.println("board from file : "+ new String(board));
+                int a= -100000;
+                int b = 1000000;
+                //board for the recursive alpha beta
+                char[] board2 = opening.MaxMin(board,depth,a,b);
 
                 //make sure everything is correct
                 System.out.println(new String(board2));
 
-                //new board from max min
-                char[] board3 = opening.MaxMin(board, depth);
-
-                //print out position and minmax estimate after the minmax opening
-                System.out.println(opening.positions_eval);
-                System.out.println(opening.minimax_estimate);
-
-
-
                 //(the program replies:)
-                System.out.println("Board Position :" + new String(board3));
+                System.out.println("Board Position :" + new String(board2));
                 System.out.println("Positions evaluated by static estimation : " + opening.positions_eval);
                 System.out.println("MINIMAX estimate : " + opening.minimax_estimate);
             }
@@ -86,35 +79,34 @@ public class MiniMaxOpening
         return board;
     }
 
-    public char[] MaxMin(char[] board, int depth)
+    public char[] MaxMin(char[] board, int depth, int a, int b)
     {
 
-        if(depth>0) {
-
-            System.out.println("current depth at MaxMin is"+depth);
+        if(depth>0)
+        {
             depth--;
             ArrayList<char[]> child = new ArrayList<char[]>();
             char[] minBoard;
-            char[] maxBoardchoice = new char[100];
+            char[] maxBoard = new char[100];
             child = generateAdd(board);
             for(char[] child_board : child) {
                 System.out.println("the possible moves for white are: " + new String(child_board));
             }
             //counter
-            int counter=-100000;
+            int v=-100000;
 
             for(int i=0;i<child.size();i++) {
 
                 //positions_evaluated++;
 
                 minBoard = MinMax(child.get(i), depth);
-                if(counter<staticEstimation(minBoard)) {
-                    counter = staticEstimation(minBoard);
-                    minimax_estimate = counter;
-                    maxBoardchoice = child.get(i);
+                if(v<staticEstimation(minBoard)) {
+                    v = staticEstimation(minBoard);
+                    minimax_estimate = v;
+                    maxBoard = child.get(i);
                 }
             }
-            return maxBoardchoice;
+            return maxBoard;
         }
         //else increase the position
         else if(depth == 0){
@@ -135,15 +127,13 @@ public class MiniMaxOpening
         //L = empty List
         ArrayList<char[]> L = new ArrayList<char[]>();
 
-        //copy of the board
-        char board_copy[];
-
         //for each location in board:
         for(int i=0; i<board_position.length; i++)
         {
             //if the location is empty AKA x
             if(board_position[i]=='x'){
-                board_copy = board_position.clone();
+                //copy of the board
+                char board_copy[] = board_position.clone();
                 board_copy[i]='W';
 
                 //if closeMill(location, b) generateRemove(b, L) else add b to L
@@ -159,9 +149,39 @@ public class MiniMaxOpening
         }
         return L;
     }
+    //Input: a board position and a list L
+    public ArrayList generateRemove(char[] board, ArrayList list)
+    {
+        //for the length of the board
+        for(int i=0;i<board.length;i++)
+        {
+            //if board[location]==B
+            if(board[i]=='B')
+            {
+                //if not closeMill(location, board)
+                if(!(closeMill(i,board)))
+                {
+                    //b = copy of board; b[location] = empty
+                    char copy_board[]=board.clone();
+                    copy_board[i] = 'x';
+                    //add b to L
+                    list.add(copy_board);
 
+                }
+                else {
+                    //If no positions were added (all black pieces are in mills) add b to L.
+                    char copy_boad[]=board.clone();
+                    list.add(copy_boad);
+
+                }
+            }
+        }
+        //positions are added to L by removing black pieces
+        return list;
+    }
     //closeMill to  figure out if they got 1 win
-    public boolean closeMill(int location, char[] copyBoard){
+    public boolean closeMill(int location, char[] copyBoard)
+    {
         char choice = copyBoard[location];
         if(choice =='W' || choice =='B')
         {
@@ -299,36 +319,8 @@ public class MiniMaxOpening
     }
 
 
-    //Input: a board position and a list L
-    public ArrayList generateRemove(char[] board, ArrayList list)
+    public int staticEstimation(char[] board)
     {
-        //for the length of the board
-        for(int i=0;i<board.length;i++)
-        {
-            if(board[i]=='B')
-            {
-                if(!(closeMill(i,board))) {
-                    char copy_board[]=board.clone();
-                    copy_board[i] = 'x';
-                    list.add(copy_board);
-
-                }
-                else {
-                    //If no positions were added (all black pieces are in mills) add b to L.
-                    char copy_boad[]=board.clone();
-                    list.add(copy_boad);
-
-                }
-            }
-        }
-        //positions are added to L by removing black pieces
-        return list;
-    }
-
-
-
-
-    public int staticEstimation(char[] board) {
         int white_count = 0;
         int black_count = 0;
 
@@ -418,6 +410,4 @@ public class MiniMaxOpening
         }
         return swap;
     }
-
-
 }

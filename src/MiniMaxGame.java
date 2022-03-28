@@ -48,7 +48,9 @@ public class MiniMaxGame {
 
 
 
-    //Recursive Alpha-Beta pruning
+    //Recursive minimax
+    //For each node x retain the range of values of its parents so that: α ≤ Vparents of x ≤ β. If the root of the tree
+    //is a MAX node it is evaluated by: MaxMin(root, −∞, +∞).
     public char[] MaxMin(char[] board, int depth)
     {
 
@@ -66,9 +68,13 @@ public class MiniMaxGame {
             }
             //setv=−∞
             int v=-999999;
-            for(int i=0;i<child.size();i++) {
+            //for each child y of x
+            for(int i = 0; i < child.size(); i++) {
+                //v = max(v, MinMax(y, α, β))
                 minBoard = MinMax(child.get(i), depth);
-                if(v<staticEstimation(minBoard)) {
+
+                //if(v ≥ β) return v
+                if(v < staticEstimation(minBoard)) {
                     v = staticEstimation(minBoard);
                     minimax_est = v;
                     maxBoardchoice = child.get(i);
@@ -85,7 +91,7 @@ public class MiniMaxGame {
     public char[] MinMax(char[] x, int depth) {
 
         if(depth>0) {
-            System.out.println("current depth at MinMax is"+depth);
+
             depth--;
             ArrayList<char[]> bchildren = new ArrayList<char[]>();
             char[] maxBoard;
@@ -95,7 +101,7 @@ public class MiniMaxGame {
                 System.out.println("the possible moves for black are: "+new String(bc));
             }
             int v=999999;
-            for(int i=0;i<bchildren.size();i++) {
+            for(int i = 0; i < bchildren.size(); i++) {
 
                 maxBoard = MaxMin(bchildren.get(i), depth);
                 if(v>staticEstimation(maxBoard)) {
@@ -115,34 +121,41 @@ public class MiniMaxGame {
     //generate black moves
     public ArrayList BlackgenerateMoves(char[] board)
     {
-
-
-        for(int i=0;i<board.length;i++) {
+        //similar to the tempb method
+        for(int i = 0; i < board.length; i++)
+        {   //if theyre white make black
             if(board[i]=='W') {
                 board[i] = 'B';
                 continue;
             }
-            if(board[i]=='B') {
+
+            //if theyre black make white
+            if(board[i]=='B')
+            {
                 board[i] = 'W';
             }
         }
 
-        ArrayList<char[]> black_board = new ArrayList<char[]>();
+        //black_board will get its contents from GMME method
+        ArrayList<char[]> black_board = generateMovesMidgameEndgame(board);
         ArrayList<char[]> black_swap = new ArrayList<char[]>();
 
-        black_board = generateMovesMidgameEndgame(board);
-        for(char[] y : black_board) {
-            char[] board2 = y;
-            for(int i = 0; i < board2.length; i++) {
-                if(board2[i] =='W') {
+        for(char[] x : black_board)
+        {
+            char[] board2 = x;
+            for(int i = 0; i < board2.length; i++)
+            {
+                if(board2[i] =='W')
+                {
                     board2[i] = 'B';
                     continue;
                 }
-                if(board2[i]=='B') {
+                if(board2[i]=='B')
+                {
                     board2[i] = 'W';
                 }
             }
-            black_swap.add(y);
+            black_swap.add(x);
         }
         return black_swap;
     }
@@ -159,7 +172,6 @@ public class MiniMaxGame {
             if(swapped_board[i] =='W')
             {
                 swapped_board[i] = 'B';
-                continue;
             }
             if(swapped_board[i] =='B')
             {
