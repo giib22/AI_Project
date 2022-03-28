@@ -31,10 +31,6 @@ public class MiniMaxGame {
                 //new board from max min
                 char[] board2 = game.MaxMin(board, depth);
 
-                //print out position and minmax estimate after the minmax opening
-                System.out.println(game.positions_eval);
-                System.out.println(game.minimax_est);
-
 
                 //(the program replies:)
                 System.out.println("Board Position :" + new String(board2));
@@ -53,7 +49,7 @@ public class MiniMaxGame {
 
 
     //Recursive Alpha-Beta pruning
-    public char[] MaxMin(char[] x, int depth)
+    public char[] MaxMin(char[] board, int depth)
     {
 
         if(depth>0) {
@@ -64,9 +60,9 @@ public class MiniMaxGame {
             ArrayList<char[]> child = new ArrayList<char[]>();
             char[] minBoard;
             char[] maxBoardchoice = new char[50];
-            child = generateMovesMidgameEndgame(x);
+            child = generateMovesMidgameEndgame(board);
             for(char[] c : child) {
-                System.out.println("the possible moves for white are: "+new String(c));
+                System.out.println("the possible moves for white are: " + new String(c));
             }
             //setv=−∞
             int v=-999999;
@@ -83,7 +79,7 @@ public class MiniMaxGame {
         else if(depth==0) {
             positions_eval++;
         }
-        return x;
+        return board;
     }
 
     public char[] MinMax(char[] x, int depth) {
@@ -94,7 +90,7 @@ public class MiniMaxGame {
             ArrayList<char[]> bchildren = new ArrayList<char[]>();
             char[] maxBoard;
             char[] minBoardchoice = new char[50];
-            bchildren = generateBlackMoves(x);
+            bchildren = BlackgenerateMoves(x);
             for(char[] bc : bchildren) {
                 System.out.println("the possible moves for black are: "+new String(bc));
             }
@@ -117,7 +113,7 @@ public class MiniMaxGame {
     }
 
     //generate black moves
-    public ArrayList generateBlackMoves(char[] board)
+    public ArrayList BlackgenerateMoves(char[] board)
     {
 
 
@@ -174,7 +170,7 @@ public class MiniMaxGame {
         return swapped_board;
     }
 
-
+     //copied from minimaxopening
     //closeMill to  figure out if they got 1 win
     public boolean closeMill(int location, char[] copyBoard){
         char choice = copyBoard[location];
@@ -213,7 +209,7 @@ public class MiniMaxGame {
                         return false;
 
                 case 5://e2
-                    if((copyBoard[9] == choice && copyBoard[14] == choice)||(copyBoard[3] == choice && copyBoard[2] == choice))
+                    if((copyBoard[9] == choice && copyBoard[14] == choice)||(copyBoard[3] == choice && copyBoard[1] == choice))
                         return true;
                     else
                         return false;
@@ -255,7 +251,7 @@ public class MiniMaxGame {
                         return false;
 
                 case 12://c4
-                    if((copyBoard[4] == choice && copyBoard[8] == choice)||(copyBoard[13] == choice && copyBoard[14] == choice)|| (copyBoard[13] == choice && copyBoard[14] == choice))
+                    if((copyBoard[4] == choice && copyBoard[8] == choice)||(copyBoard[13] == choice && copyBoard[14] == choice)|| (copyBoard[15] == choice && copyBoard[18] == choice))
                         return true;
                     else
                         return false;
@@ -273,7 +269,7 @@ public class MiniMaxGame {
                         return false;
 
                 case 15://b5
-                    if((copyBoard[7] == choice && copyBoard[2] == choice)||(copyBoard[16] == choice && copyBoard[17] == choice)||(copyBoard[18] == choice && copyBoard[18] == choice))
+                    if((copyBoard[7] == choice && copyBoard[2] == choice)||(copyBoard[16] == choice && copyBoard[17] == choice)||(copyBoard[18] == choice && copyBoard[15] == choice))
                         return true;
                     else
                         return false;
@@ -286,7 +282,7 @@ public class MiniMaxGame {
                         return false;
 
                 case 17://f5
-                    if((copyBoard[10] == choice && copyBoard[3] == choice)||(copyBoard[15] == choice && copyBoard[16] == choice))
+                    if((copyBoard[10] == choice && copyBoard[3] == choice)||(copyBoard[15] == choice && copyBoard[16] == choice)||(copyBoard[14] == choice && copyBoard[20] == choice))
                         return true;
                     else
                         return false;
@@ -304,7 +300,7 @@ public class MiniMaxGame {
                         return false;
 
                 case 20://g6
-                    if((copyBoard[1] == choice && copyBoard[11] == choice)||(copyBoard[18] == choice && copyBoard[19] == choice))
+                    if((copyBoard[1] == choice && copyBoard[11] == choice)||(copyBoard[18] == choice && copyBoard[19] == choice)||(copyBoard[14] == choice && copyBoard[17] == choice))
                         return true;
                     else
                         return false;
@@ -319,84 +315,110 @@ public class MiniMaxGame {
         int white_count = 0;
         int black_count = 0;
         ArrayList<char[]> List = new ArrayList<char[]>();
-        List = generateBlackMoves(board);
+        List = BlackgenerateMoves(board);
         int bmovecount = List.size();
 
 
-
-
-
-        for (int i = 0; i < board.length; i++) {
-            if (board[i] == 'W') {
+        for (int i = 0; i < board.length; i++)
+        {
+            if (board[i] == 'W')
+            {
                 white_count++;
-            } else if (board[i] == 'B') {
+            } else if (board[i] == 'B')
+            {
                 black_count++;
             }
         }
 
         //if (numBlackPieces ≤ 2) return(10000)
-        if (black_count <= 2) {
+        if (black_count <= 2)
+        {
             return 10000;
         }
 
         //else if (numWhitePieces ≤ 2) return(-10000)
-        else if (white_count <= 2) {
+        else if (white_count <= 2)
+        {
             return -10000;
         } //else if (numBlackMoves==0) return(10000)
-        else if (bmovecount == 0) {
+        else if (bmovecount == 0)
+        {
             return 10000;
         } //else return ( 1000(numWhitePieces − numBlackPieces) - numBlackMoves)
-        else {
+        else
+        {
             return ((1000 * (white_count - black_count)) - bmovecount);
         }
     }
-    public ArrayList generateHopping(char[] x) {
-        ArrayList<char[]> ghList = new ArrayList<char[]>();
-        //this.board=b.clone();
-        char copyBoard[];
-        for(int i=0;i<x.length;i++) {
-            if(x[i]=='W') {
-                for(int j=0;j<x.length;j++) {
-                    if(x[j]=='x') {
-                        copyBoard = x.clone();
-                        copyBoard[i]='x';
-                        copyBoard[j]='W';
-                        if(closeMill(j,copyBoard)){
-                            generateRemove(copyBoard, ghList);
+    public ArrayList generateHopping(char[] board)
+    {
+        //L = empty list
+        ArrayList<char[]> list = new ArrayList<char[]>();
+        //for each location α in board
+        for(int a = 0; a < board.length; a++)
+        {
+            //if board[α] == W
+            if(board[a] == 'W')
+            {
+                //for each location β in board
+                for(int b = 0; b < board.length; b++)
+                {
+                    //if board[β] == empty aka x
+                    if(board[b] == 'x')
+                    {
+                        //b = copy of board; b[α] = empty; b[β] = W
+                        char board_copy[] = board.clone();
+                        board_copy[a]='x';
+                        board_copy[b]='W';
+
+
+                        //if closeMill(β, b) generateRemove(b, L)
+                        if(closeMill(b, board_copy))
+                        {
+                            generateRemove(board_copy, list);
                         }
-                        else {
-                            ghList.add(copyBoard);
+                        else
+                        {
+                           // else add b to L
+                            list.add(board_copy);
                         }
                     }
                 }
             }
         }
-        return ghList;
+        return list;
     }
 
 
 
-    public ArrayList generateRemove(char[] b, ArrayList list) {
-        //ArrayList li = new ArrayList();
-        //li=(ArrayList) list.clone();
-        ArrayList grList = (ArrayList) list.clone();
-        //char bo[] = b.clone();
-        for(int i=0;i<b.length;i++) {
-            if(b[i]=='B') {
-                if(!(closeMill(i,b))) {
-                    char cbo[]=b.clone();
-                    cbo[i] = 'x';
-                    grList.add(cbo);
+    public ArrayList generateRemove(char[] board, ArrayList L)
+    {
+
+        //for each location in board:
+        for(int i = 0; i < board.length; i++)
+        {
+            if(board[i] == 'B')
+            {
+                //if not closeMill(location, board)
+                if(!(closeMill(i,board)))
+                {
+                    char board_copy[]=board.clone();
+                    board_copy[i] = 'x';
+                    L.add(board_copy);
 
                 }
-                else {
-                    char cbo[]=b.clone();
-                    grList.add(cbo);
+                else
+                {
+                //If no positions were added (all black pieces are in mills) add b to L.
+                    char board_copy[]=board.clone();
+                    L.add(board_copy);
                 }
             }
         }
-        return grList;
+        return L;
     }
+
+
         public ArrayList generateMovesMidgameEndgame(char[] board)
         {
         ArrayList<char[]> List = new ArrayList<char[]>();
@@ -412,6 +434,8 @@ public class MiniMaxGame {
         }
         if(white_count==3)
         {
+            //Return the list produced by GenerateHopping
+            //applied to the board
             List = generateHopping(board);
             return List;
         }
@@ -425,28 +449,146 @@ public class MiniMaxGame {
 
     }
 
-    public ArrayList generateMove(char[] board) {
-        ArrayList<char[]> gmList = new ArrayList<char[]>();
+    public ArrayList generateMove(char[] board)
+    {
+        //empty list
+        ArrayList<char[]> list = new ArrayList<char[]>();
 
-        int[] list;
-        for(int i=0;i<board.length;i++){
-            if(board[i]=='W'){
-                list=neighbours(i);
-                for(int j: nlist) {
-                    if(board[j]=='x') {
-                        board[i]='x';
-                        board[j]='W';
-                        if(closeMill(j, board)){
-                            generateRemove(board, gmList);
+        //for each location in board
+        for(int i = 0; i < board.length; i++){
+            //if board loacation =='w'
+            if(board[i]=='W')
+            {
+                //make a list of neighbors location
+                //**** CREATE NEIGHBORS METHOD*****
+                int[] n_list = neighbors(i);
+
+                //for each j in n
+
+                for(int j: n_list)
+                {
+                    //if board in location j empty
+                    if(board[j]=='x')
+                    {
+                        //b = copy of board; b[location] = empty; b[j]=W
+                        char board_copy[] = board.clone();
+                        board_copy[i]='x';
+                        board_copy[j]='W';
+
+                        //if closeMill(j, b) GenerateRemove(b, L)
+                        if(closeMill(j, board_copy))
+                        {
+                            generateRemove(board_copy, list);
                         }
-                        else {
-                            gmList.add(board);
+                        //else add b to L
+                        else
+                        {
+                            list.add(board);
                         }
                     }
                 }
             }
         }
-        return gmList;
+        return list;
+    }
+
+    public int[] neighbors(int j)
+    {
+        //array to input the neighbors
+        int[] arr;
+
+        switch(j)
+        {
+            case 0 :
+                arr = new int[]{1, 2, 6};
+                return arr;
+
+            case 1 :
+                arr = new int[]{0, 3, 11};
+                return arr;
+
+            case 2 :
+                arr = new int[]{0, 3, 4, 7};
+                return arr;
+
+            case 3 :
+                arr = new int[]{1, 2, 5, 10};
+                return arr;
+
+            case 4 :
+                arr = new int[]{2, 5, 8};
+                return arr;
+
+            case 5 :
+                arr = new int[]{3, 4, 9};
+                return arr;
+
+            case 6 :
+                arr = new int[]{0, 7, 18};
+                return arr;
+
+            case 7 :
+                arr = new int[]{2, 6, 8, 15};
+                return arr;
+
+            case 8 :
+                arr = new int[]{4, 7, 12};
+                return arr;
+
+            case 9 :
+                arr=new int[]{5, 10, 14};
+                return arr;
+
+            case 10 :
+                arr = new int[]{3, 9, 11, 17};
+                return arr;
+
+            case 11 :
+                arr =new int[]{1, 10, 20};
+                return arr;
+
+            case 12 :
+                arr=new int[]{8, 13, 15};
+                return arr;
+
+            case 13 :
+                arr = new int[]{12, 14, 16};
+                return arr;
+
+            case 14 : arr = new int[]{9, 13, 17};
+            return arr;
+
+            case 15 :
+                arr = new int[]{7, 12, 16, 18};
+                return arr;
+
+            case 16 :
+                arr = new int[]{13, 15, 17, 19};
+                return arr
+                        ;
+            case 17 :
+                arr = new int[]{10, 14, 16, 20};
+                return arr;
+
+            case 18 :
+                arr = new int[]{6, 15, 19};
+                return arr;
+
+            case 19 :
+                arr = new int[]{16, 18, 20};
+                return arr;
+
+            case 20 :
+                arr = new int[]{11, 17, 19};
+                return arr;
+
+            default:
+                arr = new int[]{};
+                return arr;
+
+        }
+
+
     }
 
 }

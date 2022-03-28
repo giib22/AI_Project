@@ -69,24 +69,22 @@ public class MiniMaxOpening
     //compute the board tempb by swapping the colors in b. Replace each W by a B, and each B by a W.
     public char[] tempb(char[] board)
     {
-        //make a copy of the board
-        char[] swapped_board = board.clone();
 
         //itterate the board and swapp the things
-        for(int i=0; i < swapped_board.length; i++)
+        for(int i=0; i < board.length; i++)
         {
-            if(swapped_board[i] =='W')
+            if(board[i] =='W')
             {
-                swapped_board[i] = 'B';
+                board[i] = 'B';
                 continue;
             }
-            if(swapped_board[i] =='B')
+            if(board[i] =='B')
             {
-                swapped_board[i] = 'W';
+                board[i] = 'W';
             }
         }
 
-        return swapped_board;
+        return board;
     }
 
     public char[] MaxMin(char[] board, int depth)
@@ -201,7 +199,7 @@ public class MiniMaxOpening
                         return false;
 
                 case 5://e2
-                    if((copyBoard[9] == choice && copyBoard[14] == choice)||(copyBoard[3] == choice && copyBoard[2] == choice))
+                    if((copyBoard[9] == choice && copyBoard[14] == choice)||(copyBoard[3] == choice && copyBoard[1] == choice))
                         return true;
                     else
                         return false;
@@ -243,7 +241,7 @@ public class MiniMaxOpening
                         return false;
 
                 case 12://c4
-                    if((copyBoard[4] == choice && copyBoard[8] == choice)||(copyBoard[13] == choice && copyBoard[14] == choice)|| (copyBoard[13] == choice && copyBoard[14] == choice))
+                    if((copyBoard[4] == choice && copyBoard[8] == choice)||(copyBoard[13] == choice && copyBoard[14] == choice)|| (copyBoard[15] == choice && copyBoard[18] == choice))
                         return true;
                     else
                         return false;
@@ -261,7 +259,7 @@ public class MiniMaxOpening
                         return false;
 
                 case 15://b5
-                    if((copyBoard[7] == choice && copyBoard[2] == choice)||(copyBoard[16] == choice && copyBoard[17] == choice)||(copyBoard[18] == choice && copyBoard[18] == choice))
+                    if((copyBoard[7] == choice && copyBoard[2] == choice)||(copyBoard[16] == choice && copyBoard[17] == choice)||(copyBoard[18] == choice && copyBoard[12] == choice))
                         return true;
                     else
                         return false;
@@ -274,7 +272,7 @@ public class MiniMaxOpening
                         return false;
 
                 case 17://f5
-                    if((copyBoard[10] == choice && copyBoard[3] == choice)||(copyBoard[15] == choice && copyBoard[16] == choice))
+                    if((copyBoard[10] == choice && copyBoard[3] == choice)||(copyBoard[15] == choice && copyBoard[16] == choice)||(copyBoard[14] == choice && copyBoard[20] == choice))
                         return true;
                     else
                         return false;
@@ -292,7 +290,7 @@ public class MiniMaxOpening
                         return false;
 
                 case 20://g6
-                    if((copyBoard[1] == choice && copyBoard[11] == choice)||(copyBoard[18] == choice && copyBoard[19] == choice))
+                    if((copyBoard[1] == choice && copyBoard[11] == choice)||(copyBoard[18] == choice && copyBoard[19] == choice)||(copyBoard[14] == choice && copyBoard[17] == choice))
                         return true;
                     else
                         return false;
@@ -331,15 +329,15 @@ public class MiniMaxOpening
 
 
 
-    public int staticEstimation(char[] sboard) {
+    public int staticEstimation(char[] board) {
         int white_count = 0;
         int black_count = 0;
-        char[] lboard = sboard.clone();
-        for(int i=0;i<lboard.length;i++) {
-            if(lboard[i]=='W') {
+
+        for(int i=0;i<board.length;i++) {
+            if(board[i]=='W') {
                 white_count++;
             }
-            else if(lboard[i]=='B') {
+            else if(board[i]=='B') {
                 black_count++;
             }
         }
@@ -358,12 +356,13 @@ public class MiniMaxOpening
             ArrayList<char[]> bchild = new ArrayList<char[]>();
             char[] maxBoard;
             char[] minBoard = new char[100];
-            bchild = generateBlackMoves(x);
+            bchild = black_generateMoves(x);
             for(char[] black_child : bchild) {
                 System.out.println("the possible moves for black are: "+new String(black_child));
 
             }
-            int v=999999;
+            //infinity
+            int v=100000000;
 
             for(int i=0;i<bchild.size();i++)
             {
@@ -382,40 +381,43 @@ public class MiniMaxOpening
     }
 
 
-    public ArrayList generateBlackMoves(char[] x)
+    public ArrayList black_generateMoves(char[] board)
     {
 
-        char[] lboard = x.clone();
-        for(int i=0;i<lboard.length;i++)
+
+        for(int i=0;i<board.length;i++)
         {
-            if(lboard[i]=='W') {
-                lboard[i] = 'B';
+            if(board[i]=='W') {
+                board[i] = 'B';
                 continue;
             }
-            if(lboard[i]=='B')
+            if(board[i]=='B')
             {
-                lboard[i] = 'W';
+                board[i] = 'W';
             }
         }
 
-        ArrayList<char[]> gbm = new ArrayList<char[]>();
-        ArrayList<char[]> gbmswap = new ArrayList<char[]>();
+        ArrayList<char[]> moves = new ArrayList<char[]>();
+        ArrayList<char[]> swap = new ArrayList<char[]>();
 
-        gbm = generateAdd(lboard);
-        for(char[] y : gbm) {
-            char[] lsboard = y;
-            for(int i=0;i<lsboard.length;i++) {
-                if(lsboard[i]=='W') {
-                    lsboard[i] = 'B';
+        moves = generateAdd(board);
+
+
+
+        for(char[] x : moves) {
+            char[] board2 = x;
+            for(int i = 0; i < board2.length; i++) {
+                if(board2[i] == 'W') {
+                    board2[i] = 'B';
                     continue;
                 }
-                if(lsboard[i]=='B') {
-                    lsboard[i] = 'W';
+                if(board2[i] == 'B') {
+                    board2[i] = 'W';
                 }
             }
-            gbmswap.add(y);
+            swap.add(x);
         }
-        return gbmswap;
+        return swap;
     }
 
 
