@@ -318,9 +318,14 @@ public class MiniMaxGame {
     public int staticEstimation(char[] board) {
         int white_count = 0;
         int black_count = 0;
-        ArrayList<char[]> nbmList = new ArrayList<char[]>();
-        nbmList = generateBlackMoves(board);
-        int bmovecount = nbmList.size();
+        ArrayList<char[]> List = new ArrayList<char[]>();
+        List = generateBlackMoves(board);
+        int bmovecount = List.size();
+
+
+
+
+
         for (int i = 0; i < board.length; i++) {
             if (board[i] == 'W') {
                 white_count++;
@@ -328,13 +333,20 @@ public class MiniMaxGame {
                 black_count++;
             }
         }
+
+        //if (numBlackPieces ≤ 2) return(10000)
         if (black_count <= 2) {
             return 10000;
-        } else if (white_count <= 2) {
+        }
+
+        //else if (numWhitePieces ≤ 2) return(-10000)
+        else if (white_count <= 2) {
             return -10000;
-        } else if (bmovecount == 0) {
+        } //else if (numBlackMoves==0) return(10000)
+        else if (bmovecount == 0) {
             return 10000;
-        } else {
+        } //else return ( 1000(numWhitePieces − numBlackPieces) - numBlackMoves)
+        else {
             return ((1000 * (white_count - black_count)) - bmovecount);
         }
     }
@@ -413,24 +425,22 @@ public class MiniMaxGame {
 
     }
 
-    public ArrayList generateMove(char[] x) {
+    public ArrayList generateMove(char[] board) {
         ArrayList<char[]> gmList = new ArrayList<char[]>();
-        //this.board=b.clone();
-        char copyBoard[];
-        int[] nlist;
-        for(int i=0;i<x.length;i++){
-            if(x[i]=='W'){
-                nlist=neighbours(i);
+
+        int[] list;
+        for(int i=0;i<board.length;i++){
+            if(board[i]=='W'){
+                list=neighbours(i);
                 for(int j: nlist) {
-                    if(x[j]=='x') {
-                        copyBoard = x.clone();
-                        copyBoard[i]='x';
-                        copyBoard[j]='W';
-                        if(closeMill(j,copyBoard)){
-                            generateRemove(copyBoard, gmList);
+                    if(board[j]=='x') {
+                        board[i]='x';
+                        board[j]='W';
+                        if(closeMill(j, board)){
+                            generateRemove(board, gmList);
                         }
                         else {
-                            gmList.add(copyBoard);
+                            gmList.add(board);
                         }
                     }
                 }
