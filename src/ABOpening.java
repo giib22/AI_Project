@@ -338,38 +338,7 @@ public class ABOpening {
 
 
 
-    public char[] MinMax(char[] x, int depth) {
 
-        if(depth>0) {
-
-            //System.out.println("current depth at MinMax is"+d epth);
-            depth--;
-            ArrayList<char[]> bchild = new ArrayList<char[]>();
-            char[] maxBoard;
-            char[] minBoard = new char[100];
-            bchild = black_generateMoves(x);
-            for(char[] black_child : bchild) {
-                System.out.println("the possible moves for black are: "+new String(black_child));
-
-            }
-            //infinity
-            int v=100000000;
-
-            for(int i=0;i<bchild.size();i++)
-            {
-                maxBoard = MaxMin(bchild.get(i), depth);
-                if(v > staticEstimation(maxBoard)) {
-                    v = staticEstimation(maxBoard);
-                    minBoard = bchild.get(i);
-                }
-            }
-            return minBoard;
-        }
-        else if(depth==0){
-            positions_eval++;
-        }
-        return x;
-    }
 
 
     public ArrayList black_generateMoves(char[] board)
@@ -410,4 +379,5 @@ public class ABOpening {
         }
         return swap;
     }
+
 }

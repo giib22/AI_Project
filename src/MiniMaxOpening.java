@@ -89,7 +89,7 @@ public class MiniMaxOpening
     public char[] MaxMin(char[] board, int depth)
     {
 
-        if(depth>0) {
+        if(0 < depth) {
 
             System.out.println("current depth at MaxMin is"+depth);
             depth--;

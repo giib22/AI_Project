@@ -1,7 +1,8 @@
 import java.awt.List;
 import java.io.*;
 import java.util.*;
-public class MiniMaxGame {
+public class
+MiniMaxGame {
     private static int positions_eval = 0;
     private static int minimax_est = 0;
 
@@ -67,7 +68,7 @@ public class MiniMaxGame {
                 System.out.println("the possible moves for white are: " + new String(c));
             }
             //setv=−∞
-            int v=-999999;
+            int v=-100000;
             //for each child y of x
             for(int i = 0; i < child.size(); i++) {
                 //v = max(v, MinMax(y, α, β))
@@ -400,6 +401,8 @@ public class MiniMaxGame {
         }
         return list;
     }
+
+
 
 
 

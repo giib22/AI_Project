@@ -32,6 +32,7 @@ public class ABGame
 
                 //making sure all the files are working properly
                 //System.out.println("board from file : "+ new String(board));
+                // -infinity and positive infinity for the abprunning
                 int a= -100000;
                 int b = 1000000;
                 //board for the recursive alpha beta
@@ -41,9 +42,9 @@ public class ABGame
                 System.out.println(new String(board2));
 
                 //(the program replies:)
-                System.out.println("Board Position :" + new String(board2));
-                System.out.println("Positions evaluated by static estimation : " + opening.positions_eval);
-                System.out.println("MINIMAX estimate : " + opening.minimax_estimate);
+               out.println("Board Position :" + new String(board2));
+               out.println("Positions evaluated by static estimation : " + opening.positions_eval);
+               out.println("MINIMAX estimate : " + opening.minimax_estimate);
             }
             in.close();
             out.close();
@@ -314,49 +315,177 @@ public class ABGame
             List = generateMove(board);
             return List;
         }
-        public ArrayList generateMove(char[] board)
-        {
-            //empty list
-            ArrayList<char[]> list = new ArrayList<char[]>();
 
-            //for each location in board
-            for(int i = 0; i < board.length; i++){
-                //if board loacation =='w'
-                if(board[i]=='W')
+
+
+    }
+    public ArrayList generateMove(char[] board)
+    {
+        //empty list
+        ArrayList<char[]> list = new ArrayList<char[]>();
+
+        //for each location in board
+        for(int i = 0; i < board.length; i++){
+            //if board loacation =='w'
+            if(board[i]=='W')
+            {
+                //make a list of neighbors location
+                //**** CREATE NEIGHBORS METHOD*****
+                int[] n_list = neighbors(i);
+
+                //for each j in n
+
+                for(int j: n_list)
                 {
-                    //make a list of neighbors location
-                    //**** CREATE NEIGHBORS METHOD*****
-                    int[] n_list = neighbors(i);
-
-                    //for each j in n
-
-                    for(int j: n_list)
+                    //if board in location j empty
+                    if(board[j]=='x')
                     {
-                        //if board in location j empty
-                        if(board[j]=='x')
-                        {
-                            //b = copy of board; b[location] = empty; b[j]=W
-                            char board_copy[] = board.clone();
-                            board_copy[i]='x';
-                            board_copy[j]='W';
+                        //b = copy of board; b[location] = empty; b[j]=W
+                        char board_copy[] = board.clone();
+                        board_copy[i]='x';
+                        board_copy[j]='W';
 
-                            //if closeMill(j, b) GenerateRemove(b, L)
-                            if(closeMill(j, board_copy))
-                            {
-                                generateRemove(board_copy, list);
-                            }
-                            //else add b to L
-                            else
-                            {
-                                list.add(board);
-                            }
+                        //if closeMill(j, b) GenerateRemove(b, L)
+                        if(closeMill(j, board_copy))
+                        {
+                            generateRemove(board_copy, list);
+                        }
+                        //else add b to L
+                        else
+                        {
+                            list.add(board);
                         }
                     }
                 }
             }
-            return list;
+        }
+        return list;
+    }
+    public ArrayList generateHopping(char[] board)
+    {
+        //L = empty list
+        ArrayList<char[]> list = new ArrayList<char[]>();
+        //for each location α in board
+        for(int a = 0; a < board.length; a++)
+        {
+            //if board[α] == W
+            if(board[a] == 'W')
+            {
+                //for each location β in board
+                for(int b = 0; b < board.length; b++)
+                {
+                    //if board[β] == empty aka x
+                    if(board[b] == 'x')
+                    {
+                        //b = copy of board; b[α] = empty; b[β] = W
+                        char board_copy[] = board.clone();
+                        board_copy[a]='x';
+                        board_copy[b]='W';
+
+
+                        //if closeMill(β, b) generateRemove(b, L)
+                        if(closeMill(b, board_copy))
+                        {
+                            generateRemove(board_copy, list);
+                        }
+                        else
+                        {
+                            // else add b to L
+                            list.add(board_copy);
+                        }
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
+    public ArrayList generateRemove(char[] board, ArrayList L)
+    {
+
+        //for each location in board:
+        for(int i = 0; i < board.length; i++)
+        {
+            if(board[i] == 'B')
+            {
+                //if not closeMill(location, board)
+                if(!(closeMill(i,board)))
+                {
+                    char board_copy[]=board.clone();
+                    board_copy[i] = 'x';
+                    L.add(board_copy);
+
+                }
+                else
+                {
+                    //If no positions were added (all black pieces are in mills) add b to L.
+                    char board_copy[]=board.clone();
+                    L.add(board_copy);
+                }
+            }
+        }
+        return L;
+    }
+    //generate black moves
+    public ArrayList BlackgenerateMoves(char[] board)
+    {
+        //similar to the tempb method
+        for(int i = 0; i < board.length; i++)
+        {   //if theyre white make black
+            if(board[i]=='W') {
+                board[i] = 'B';
+                continue;
+            }
+
+            //if theyre black make white
+            if(board[i]=='B')
+            {
+                board[i] = 'W';
+            }
         }
 
+        //black_board will get its contents from GMME method
+        ArrayList<char[]> black_board = generateMovesMidgameEndgame(board);
+        ArrayList<char[]> black_swap = new ArrayList<char[]>();
 
+        for(char[] x : black_board)
+        {
+            char[] board2 = x;
+            for(int i = 0; i < board2.length; i++)
+            {
+                if(board2[i] =='W')
+                {
+                    board2[i] = 'B';
+                    continue;
+                }
+                if(board2[i]=='B')
+                {
+                    board2[i] = 'W';
+                }
+            }
+            black_swap.add(x);
+        }
+        return black_swap;
     }
+
+    //compute the board tempb by swapping the colors in b. Replace each W by a B, and each B by a W.
+    public char[] tempb(char[] swapped_board)
+    {
+
+        //itterate the board and swapp the things
+        for(int i=0; i < swapped_board.length; i++)
+        {
+            if(swapped_board[i] =='W')
+            {
+                swapped_board[i] = 'B';
+            }
+            if(swapped_board[i] =='B')
+            {
+                swapped_board[i] = 'W';
+            }
+        }
+
+        return swapped_board;
+    }
+
 }
