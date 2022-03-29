@@ -78,7 +78,7 @@ public class ABOpening {
 
         return board;
     }
-
+/*
     public char[] MaxMin(char[] board, int depth, int a, int b)
     {
 
@@ -116,7 +116,7 @@ public class ABOpening {
     }
 
 
-
+*/
 
 
     //input board Position
@@ -378,6 +378,84 @@ public class ABOpening {
             swap.add(x);
         }
         return swap;
+    }
+    public char[] MaxMin(char[] x, int depth, int a, int b) {
+
+        if(depth>0) {
+            System.out.println("current depth at MaxMin is"+depth);
+            depth--;
+            ArrayList<char[]> children = new ArrayList<char[]>();
+            char[] minBoard;
+            char[] maxBoardchoice = new char[50];
+            children = generateAdd(x);
+            for(char[] c : children) {
+                System.out.println("the possible moves for white are: "+new String(c));
+            }
+            int v=-999999;
+
+            for(int i=0;i<children.size();i++) {
+
+                minBoard = MinMax(children.get(i), depth, a, b);
+                if(v<staticEstimation(minBoard)) {
+                    v = staticEstimation(minBoard);
+                    //positions_evaluated++;
+                    minimax_estimate = v;
+                    maxBoardchoice = children.get(i);
+                }
+                if(v>=b) {
+
+                    return maxBoardchoice;
+                }
+                else {
+
+                    a = Math.max(v,a);
+                }
+            }
+            return maxBoardchoice;
+        }
+        else if(depth==0) {
+            positions_eval++;
+        }
+        return x;
+    }
+
+    public char[] MinMax(char[] x, int depth, int a, int b) {
+
+        if(depth>0) {
+            System.out.println("current depth at MinMax is"+depth);
+            depth--;
+            ArrayList<char[]> bchildren = new ArrayList<char[]>();
+            char[] maxBoard;
+            char[] minBoardchoice = new char[50];
+            bchildren = black_generateMoves(x);
+            for(char[] bc : bchildren) {
+                System.out.println("the possible moves for black are: "+new String(bc));
+            }
+            int v=999999;
+
+            for(int i=0;i<bchildren.size();i++) {
+
+                maxBoard = MaxMin(bchildren.get(i), depth, a, b);
+                if(v>staticEstimation(maxBoard)) {
+
+                    v = staticEstimation(maxBoard);
+                    minBoardchoice = bchildren.get(i);
+                }
+                if(v<=a) {
+
+                    return minBoardchoice;
+                }
+                else {
+
+                    b = Math.min(v,b);
+                }
+            }
+            return minBoardchoice;
+        }
+        else if(depth==0) {
+            positions_eval++;
+        }
+        return x;
     }
 
 }
