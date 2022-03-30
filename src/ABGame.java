@@ -54,23 +54,34 @@ public class ABGame
         }
     }
 
-    public ArrayList generateAdd(char[] b) {
-        ArrayList gaList = new ArrayList();
-        //this.board=b.clone();
-        char copyBoard[];
-        for(int i=0;i<b.length;i++){
-            if(b[i]=='x'){
-                copyBoard = b.clone();
-                copyBoard[i]='W';
-                if(closeMill(i,copyBoard)){
-                    gaList = generateRemove(copyBoard, gaList);
+    public ArrayList generateAdd(char[] board_position) {
+
+        //L = empty List
+        ArrayList<char[]> L = new ArrayList<char[]>();
+
+        //copy of the board
+        char board_copy[];
+
+        //for each location in board:
+        for(int i=0; i<board_position.length; i++)
+        {
+            //if the location is empty AKA x
+            if(board_position[i]=='x'){
+                board_copy = board_position.clone();
+                board_copy[i]='W';
+
+                //if closeMill(location, b) generateRemove(b, L) else add b to L
+                if(closeMill(i, board_copy))
+                {
+                    L = generateRemove(board_copy, L);
                 }
-                else {
-                    gaList.add(copyBoard);
+                else
+                {
+                    L.add(board_copy);
                 }
             }
         }
-        return gaList;
+        return L;
     }
     public boolean closeMill(int location, char[] copyBoard){
         char choice = copyBoard[location];
@@ -307,6 +318,7 @@ public class ABGame
 
 
     }
+
     public ArrayList generateMovesMidgameEndgame(char[] board)
     {
         ArrayList<char[]> List = new ArrayList<char[]>();
