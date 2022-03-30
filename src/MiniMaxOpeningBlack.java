@@ -57,6 +57,7 @@ public class MiniMaxOpeningBlack {
             if(board[i] =='W')
             {
                 board[i] = 'B';
+                continue;
             }
             if(board[i] =='B')
             {
@@ -278,37 +279,33 @@ public class MiniMaxOpeningBlack {
                 black_count++;
             }
         }
-        return white_count-black_count;
+        return white_count - black_count;
     }
     public char[] MaxMin(char[] board, int depth)
     {
 
         if(0 < depth) {
 
-            System.out.println("current depth at MaxMin is"+depth);
             depth--;
-            ArrayList<char[]> child = new ArrayList<char[]>();
-            char[] minBoard;
-            char[] maxBoardchoice = new char[100];
-            child = generateAdd(board);
-            for(char[] child_board : child) {
-                System.out.println("the possible moves for white are: " + new String(child_board));
-            }
-            //counter
-            int counter=-100000;
+            ArrayList<char[]> child = generateAdd(board);
+            char[] min_board;
+            char[] max_board = new char[100];
 
-            for(int i=0;i<child.size();i++) {
+            //negative infinity
+            int v=-100000;
+
+            for(int i = 0; i < child.size(); i++) {
 
                 //positions_evaluated++;
 
-                minBoard = MinMax(child.get(i), depth);
-                if(counter<staticEstimation(minBoard)) {
-                    counter = staticEstimation(minBoard);
-                    miniMax_est = counter;
-                    maxBoardchoice = child.get(i);
+                min_board = MinMax(child.get(i), depth);
+                if (v < staticEstimation(min_board)) {
+                    v = staticEstimation(min_board);
+                    miniMax_est = v;
+                    max_board = child.get(i);
                 }
             }
-            return maxBoardchoice;
+            return max_board;
         }
         //else increase the position
         else if(depth == 0){
