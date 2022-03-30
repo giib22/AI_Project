@@ -100,8 +100,8 @@ public class ABOpening {
                 //positions_evaluated++;
 
                 minBoard = MinMax(child.get(i), depth);
-                if(v<staticEstimation(minBoard)) {
-                    v = staticEstimation(minBoard);
+                if(v<static_estimation(minBoard)) {
+                    v = static_estimation(minBoard);
                     minimax_estimate = v;
                     maxBoard = child.get(i);
                 }
@@ -319,7 +319,7 @@ public class ABOpening {
     }
 
 
-    public int staticEstimation(char[] board)
+    public int static_estimation(char[] board)
     {
         int white_count = 0;
         int black_count = 0;
@@ -396,8 +396,8 @@ public class ABOpening {
             for(int i=0;i<children.size();i++) {
 
                 minBoard = MinMax(children.get(i), depth, a, b);
-                if(v<staticEstimation(minBoard)) {
-                    v = staticEstimation(minBoard);
+                if(v<static_estimation(minBoard)) {
+                    v = static_estimation(minBoard);
                     //positions_evaluated++;
                     minimax_estimate = v;
                     maxBoardchoice = children.get(i);
@@ -436,9 +436,9 @@ public class ABOpening {
             for(int i=0;i<bchildren.size();i++) {
 
                 maxBoard = MaxMin(bchildren.get(i), depth, a, b);
-                if(v>staticEstimation(maxBoard)) {
+                if(v>static_estimation(maxBoard)) {
 
-                    v = staticEstimation(maxBoard);
+                    v = static_estimation(maxBoard);
                     minBoardchoice = bchildren.get(i);
                 }
                 if(v<=a) {

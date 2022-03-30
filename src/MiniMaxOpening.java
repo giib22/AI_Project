@@ -11,16 +11,16 @@ public class MiniMaxOpening
 // main
     public static void main(String[] args)
     {
-        // TODO Auto-generated method stub
+
         File InputFile = new File(args[0]);
         File OutputFile = new File(args[1]);
         int depth = Integer.parseInt(args[2]);
         try
         {
-            FileInputStream in = new FileInputStream(InputFile);
-            PrintWriter out = new PrintWriter(new FileWriter(OutputFile));
+            FileInputStream infile = new FileInputStream(InputFile);
+            PrintWriter outfile = new PrintWriter(new FileWriter(OutputFile));
 
-            Scanner scan= new Scanner(in);
+            Scanner scan= new Scanner(infile);
 
             while(scan.hasNextLine()){
                 //reading the board file
@@ -39,19 +39,24 @@ public class MiniMaxOpening
                 //new board from max min
                 char[] board3 = opening.MaxMin(board, depth);
 
-                //print out position and minmax estimate after the minmax opening
-                System.out.println(opening.positions_eval);
-                System.out.println(opening.minimax_estimate);
 
-                //(the program replies:)
+                //printing to the board2.txt
+
+                outfile.println("Board Position: " + new String(board3));
+                outfile.println("Positions evaluated by static estimation: " + opening.positions_eval);
+                outfile.println("MINIMAX estimate: " + opening.minimax_estimate);
+                //printing to the console
                 System.out.println("Board Position: " + new String(board3));
                 System.out.println("Positions evaluated by static estimation: " + opening.positions_eval);
                 System.out.println("MINIMAX estimate: " + opening.minimax_estimate);
             }
-            in.close();
-            out.close();
+            //closing input file
+            infile.close();
+            //closing output file
+            outfile.close();
+
+
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -66,10 +71,13 @@ public class MiniMaxOpening
         //itterate the board and swapp the things
         for(int i=0; i < board.length; i++)
         {
+            //whats white will be black
             if(board[i] =='W')
             {
                 board[i] = 'B';
             }
+
+            //whats black will be white
             if(board[i] =='B')
             {
                 board[i] = 'W';
@@ -84,36 +92,76 @@ public class MiniMaxOpening
 
         if(0 < depth) {
 
-            System.out.println("current depth at MaxMin is"+depth);
+           //subtracting depth
             depth--;
-            ArrayList<char[]> child = new ArrayList<char[]>();
-            char[] minBoard;
-            char[] maxBoardchoice = new char[100];
-            child = generateAdd(board);
-            for(char[] child_board : child) {
-                System.out.println("the possible moves for white are: " + new String(child_board));
-            }
-            //counter
-            int counter=-100000;
 
-            for(int i=0;i<child.size();i++) {
+            //array for the leafs
+            ArrayList<char[]> child =generateAdd(board);
+
+
+            char[] maxBoard = new char[100];
+
+            //this is supposed to be - infinity
+            int v=-100000;
+            //get from minmax method
+            char[] min_board;
+            //for each child y of x:
+            for(int i=0; i < child.size(); i++) {
 
                 //positions_evaluated++;
+                //v = max(v, MinMax(y))
 
-                minBoard = MinMax(child.get(i), depth);
-                if(counter<staticEstimation(minBoard)) {
-                    counter = staticEstimation(minBoard);
-                    minimax_estimate = counter;
-                    maxBoardchoice = child.get(i);
+                //minBoard=y
+                min_board = MinMax(child.get(i), depth);
+
+                if(v < staticEstimation(min_board)) {
+                    v = staticEstimation(min_board);
+                    minimax_estimate = v;
+                    //add the leaf into the new board
+                    maxBoard = child.get(i);
                 }
             }
-            return maxBoardchoice;
+            return maxBoard;
         }
+
         //else increase the position
         else if(depth == 0){
             positions_eval++;
         }
+
         return board;
+    }
+
+
+    public char[] MinMax(char[] x, int depth) {
+
+        if(depth>0) {
+            //subtract depth again
+            depth--;
+            //array for black leafs
+            ArrayList<char[]> black_child = black_generateMoves(x);
+            char[] max_board;
+            char[] min_board = new char[100];
+
+
+            //this is supposed to be infinity
+            int v=100000000;
+
+            //for each child y of x:
+            for(int i = 0; i < black_child.size(); i++)
+            {
+                max_board = MaxMin(black_child.get(i), depth);
+                if(v > staticEstimation(max_board)) {
+                    v = staticEstimation(max_board);
+                    min_board = black_child.get(i);
+                }
+            }
+            return min_board;
+        }
+        else if(depth==0){
+            positions_eval++;
+        }
+        return x;
     }
 
 
@@ -140,7 +188,7 @@ public class MiniMaxOpening
                 board_copy[i]='W';
 
                 //if closeMill(location, b) generateRemove(b, L) else add b to L
-                if(closeMill(i,board_copy))
+                if(closeMill(i, board_copy))
                 {
                     L = generateRemove(board_copy, L);
                 }
@@ -301,7 +349,7 @@ public class MiniMaxOpening
             if(board[i]=='B')
             {
                 if(!(closeMill(i,board))) {
-                    char copy_board[]=board.clone();
+                    char copy_board[] = board.clone();
                     copy_board[i] = 'x';
                     list.add(copy_board);
 
@@ -339,38 +387,7 @@ public class MiniMaxOpening
 
 
 
-    public char[] MinMax(char[] x, int depth) {
 
-        if(depth>0) {
-
-
-            depth--;
-            ArrayList<char[]> bchild = new ArrayList<char[]>();
-            char[] maxBoard;
-            char[] minBoard = new char[100];
-            bchild = black_generateMoves(x);
-            for(char[] black_child : bchild) {
-                System.out.println("the possible moves for black are: "+new String(black_child));
-
-            }
-            //infinity
-            int v=100000000;
-
-            for(int i=0;i<bchild.size();i++)
-            {
-                maxBoard = MaxMin(bchild.get(i), depth);
-                if(v > staticEstimation(maxBoard)) {
-                    v = staticEstimation(maxBoard);
-                    minBoard = bchild.get(i);
-                }
-            }
-            return minBoard;
-        }
-        else if(depth==0){
-            positions_eval++;
-        }
-        return x;
-    }
 
 
     public ArrayList black_generateMoves(char[] board)
@@ -389,11 +406,8 @@ public class MiniMaxOpening
             }
         }
 
-        ArrayList<char[]> moves = new ArrayList<char[]>();
+        ArrayList<char[]> moves = generateAdd(board);
         ArrayList<char[]> swap = new ArrayList<char[]>();
-
-        moves = generateAdd(board);
-
 
 
         for(char[] x : moves) {

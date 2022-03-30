@@ -522,8 +522,8 @@ public class ABGame
             for(int i=0;i<children.size();i++) {
 
                 minBoard = MinMax(children.get(i), depth, a, b);
-                if(v<staticEstimation(minBoard)) {
-                    v = staticEstimation(minBoard);
+                if(v<static_estimation(minBoard)) {
+                    v = static_estimation(minBoard);
                     //positions_evaluated++;
                     minimax_estimate = v;
                     maxBoardchoice = children.get(i);
@@ -562,9 +562,9 @@ public class ABGame
             for(int i=0;i<bchildren.size();i++) {
 
                 maxBoard = MaxMin(bchildren.get(i), depth, a, b);
-                if(v>staticEstimation(maxBoard)) {
+                if(v>static_estimation(maxBoard)) {
 
-                    v = staticEstimation(maxBoard);
+                    v = static_estimation(maxBoard);
                     minBoardchoice = bchildren.get(i);
                 }
                 if(v<=a) {
@@ -583,43 +583,46 @@ public class ABGame
         }
         return x;
     }
-    public int staticEstimation(char[] board) {
-        int white_count = 0;
-        int black_count = 0;
-        ArrayList<char[]> List = new ArrayList<char[]>();
-        List = BlackgenerateMoves(board);
-        int bmovecount = List.size();
+    public int static_estimation(char[] board) {
+        //white pieces count
+        int numWhitePieces = 0;
+
+        //black pieces count
+        int numBlackPieces = 0;
+        ArrayList<char[]> List =  BlackgenerateMoves(board);
+        int numBlackMoves = List.size();
 
 
+        //from the board
         for (int i = 0; i < board.length; i++)
         {
             if (board[i] == 'W')
             {
-                white_count++;
+                numWhitePieces++;
             } else if (board[i] == 'B')
             {
-                black_count++;
+                numBlackPieces++;
             }
         }
 
         //if (numBlackPieces ≤ 2) return(10000)
-        if (black_count <= 2)
+        if (numBlackPieces <= 2)
         {
             return 10000;
         }
 
         //else if (numWhitePieces ≤ 2) return(-10000)
-        else if (white_count <= 2)
+        else if (numWhitePieces <= 2)
         {
             return -10000;
         } //else if (numBlackMoves==0) return(10000)
-        else if (bmovecount == 0)
+        else if (numBlackMoves == 0)
         {
             return 10000;
         } //else return ( 1000(numWhitePieces − numBlackPieces) - numBlackMoves)
         else
         {
-            return ((1000 * (white_count - black_count)) - bmovecount);
+            return ((1000 * (numWhitePieces - numBlackPieces)) - numBlackMoves);
         }
     }
 }

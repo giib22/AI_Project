@@ -12,11 +12,11 @@ MiniMaxGame {
         File OutputFile = new File(args[1]);
         int depth = Integer.parseInt(args[2]);
         try {
-            FileInputStream in = new FileInputStream(InputFile);
-            PrintWriter out = new PrintWriter(new FileWriter(OutputFile));
+            FileInputStream infile = new FileInputStream(InputFile);
+            PrintWriter outfile = new PrintWriter(new FileWriter(OutputFile));
 
             //FileOutputStream fos = new FileOutputStream(fOutputFile);
-            Scanner scan = new Scanner(in);
+            Scanner scan = new Scanner(infile);
 
             while (scan.hasNextLine()) {
                 //reading the board file
@@ -33,13 +33,17 @@ MiniMaxGame {
                 char[] board2 = game.MaxMin(board, depth);
 
 
-                //(the program replies:)
+                //the program outputs to the second txt file
+                outfile.println("Board Position :" + new String(board2));
+                outfile.println("Positions evaluated by static estimation : " + game.positions_eval);
+                outfile.println("MINIMAX estimate : " + game.minimax_est);
+                //the program outputs to console
                 System.out.println("Board Position :" + new String(board2));
                 System.out.println("Positions evaluated by static estimation : " + game.positions_eval);
                 System.out.println("MINIMAX estimate : " + game.minimax_est);
             }
-            in.close();
-            out.close();
+            infile.close();
+            outfile.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -60,28 +64,26 @@ MiniMaxGame {
             depth--;
 
             //new leaf
-            ArrayList<char[]> child = new ArrayList<char[]>();
-            char[] minBoard;
-            char[] maxBoardchoice = new char[50];
-            child = generateMovesMidgameEndgame(board);
-            for(char[] c : child) {
-                System.out.println("the possible moves for white are: " + new String(c));
-            }
+            ArrayList<char[]> child = generateMovesMidgameEndgame(board);
+            char[] min_board;
+            char[] max_board = new char[50];
+
+
             //setv=−∞
             int v=-100000;
             //for each child y of x
             for(int i = 0; i < child.size(); i++) {
                 //v = max(v, MinMax(y, α, β))
-                minBoard = MinMax(child.get(i), depth);
+                min_board = MinMax(child.get(i), depth);
 
                 //if(v ≥ β) return v
-                if(v < staticEstimation(minBoard)) {
-                    v = staticEstimation(minBoard);
+                if(v < static_estimation(min_board)) {
+                    v = static_estimation(min_board);
                     minimax_est = v;
-                    maxBoardchoice = child.get(i);
+                    max_board = child.get(i);
                 }
             }
-            return maxBoardchoice;
+            return max_board;
         }
         else if(depth==0) {
             positions_eval++;
@@ -89,34 +91,39 @@ MiniMaxGame {
         return board;
     }
 
-    public char[] MinMax(char[] x, int depth) {
+    public char[] MinMax(char[] board, int depth) {
 
-        if(depth>0) {
+        if(0 < depth) {
 
+            //decrease depth by 1
             depth--;
-            ArrayList<char[]> bchildren = new ArrayList<char[]>();
-            char[] maxBoard;
-            char[] minBoardchoice = new char[50];
-            bchildren = BlackgenerateMoves(x);
-            for(char[] bc : bchildren) {
-                System.out.println("the possible moves for black are: "+new String(bc));
-            }
-            int v=999999;
-            for(int i = 0; i < bchildren.size(); i++) {
+            ArrayList<char[]> black_child =BlackgenerateMoves(board);
 
-                maxBoard = MaxMin(bchildren.get(i), depth);
-                if(v>staticEstimation(maxBoard)) {
-                    v = staticEstimation(maxBoard);
-                    //minimax_estimate = v;
-                    minBoardchoice = bchildren.get(i);
+            char[] min_board = new char[100];
+
+
+            //this is supposed to be infinity
+            int v=100000;
+
+            char[] max_board;
+            for(int i = 0; i < black_child.size(); i++) {
+
+                //max
+                max_board = MaxMin(black_child.get(i), depth);
+
+
+                if(v > static_estimation(max_board)) {
+                    v = static_estimation(max_board);
+
+                    min_board = black_child.get(i);
                 }
             }
-            return minBoardchoice;
+            return min_board;
         }
         else if(depth==0) {
             positions_eval++;
         }
-        return x;
+        return board;
     }
 
     //generate black moves
@@ -324,45 +331,50 @@ MiniMaxGame {
 
 
     //static estimation
-    public int staticEstimation(char[] board) {
-        int white_count = 0;
-        int black_count = 0;
-        ArrayList<char[]> List = new ArrayList<char[]>();
-        List = BlackgenerateMoves(board);
-        int bmovecount = List.size();
+    public int static_estimation(char[] board) {
+        //white pieces count
+        int numWhitePieces = 0;
+
+        //black pieces count
+        int numBlackPieces = 0;
+        ArrayList<char[]> List =  BlackgenerateMoves(board);
+        int numBlackMoves = List.size();
 
 
+        //from the board
         for (int i = 0; i < board.length; i++)
         {
             if (board[i] == 'W')
             {
-                white_count++;
+                numWhitePieces++;
             } else if (board[i] == 'B')
             {
-                black_count++;
+                numBlackPieces++;
             }
         }
 
         //if (numBlackPieces ≤ 2) return(10000)
-        if (black_count <= 2)
+        if (numBlackPieces <= 2)
         {
             return 10000;
         }
 
         //else if (numWhitePieces ≤ 2) return(-10000)
-        else if (white_count <= 2)
+        else if (numWhitePieces <= 2)
         {
             return -10000;
         } //else if (numBlackMoves==0) return(10000)
-        else if (bmovecount == 0)
+        else if (numBlackMoves == 0)
         {
             return 10000;
         } //else return ( 1000(numWhitePieces − numBlackPieces) - numBlackMoves)
         else
         {
-            return ((1000 * (white_count - black_count)) - bmovecount);
+            return ((1000 * (numWhitePieces - numBlackPieces)) - numBlackMoves);
         }
     }
+
+
     public ArrayList generateHopping(char[] board)
     {
         //L = empty list
@@ -401,9 +413,6 @@ MiniMaxGame {
         }
         return list;
     }
-
-
-
 
 
     public ArrayList generateRemove(char[] board, ArrayList L)
