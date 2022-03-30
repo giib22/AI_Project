@@ -114,8 +114,8 @@ public class MiniMaxOpening
                 //minBoard=y
                 min_board = MinMax(child.get(i), depth);
 
-                if(v < staticEstimation(min_board)) {
-                    v = staticEstimation(min_board);
+                if(v < static_estimation(min_board)) {
+                    v = static_estimation(min_board);
                     minimax_estimate = v;
                     //add the leaf into the new board
                     maxBoard = child.get(i);
@@ -151,8 +151,8 @@ public class MiniMaxOpening
             for(int i = 0; i < black_child.size(); i++)
             {
                 max_board = MaxMin(black_child.get(i), depth);
-                if(v > staticEstimation(max_board)) {
-                    v = staticEstimation(max_board);
+                if(v > static_estimation(max_board)) {
+                    v = static_estimation(max_board);
                     min_board = black_child.get(i);
                 }
             }
@@ -369,7 +369,7 @@ public class MiniMaxOpening
 
 
 
-    public int staticEstimation(char[] board) {
+    public int static_estimation(char[] board) {
         int white_count = 0;
         int black_count = 0;
 
