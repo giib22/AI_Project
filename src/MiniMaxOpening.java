@@ -24,10 +24,10 @@ public class MiniMaxOpening
 
             while(scan.hasNextLine()){
                 //reading the board file
-                String str= scan.next();
+                String pos= scan.next();
 
                 //adding the context of the file into a char array
-                char[] board = str.toCharArray();
+                char[] board = pos.toCharArray();
 
                 //starting the game in min max opening
                 MiniMaxOpening opening = new MiniMaxOpening();
@@ -36,17 +36,18 @@ public class MiniMaxOpening
                 //System.out.println("board1.txt:"+ new String(board));
 
 
+
                 //new board from max min
                 char[] board3 = opening.MaxMin(board, depth);
-
+                char[] board2 = opening.tempb(board3);
 
                 //printing to the board2.txt
 
-                outfile.println("Board Position: " + new String(board3));
+                outfile.println("Board Position: " + new String(board2));
                 outfile.println("Positions evaluated by static estimation: " + opening.positions_eval);
                 outfile.println("MINIMAX estimate: " + opening.minimax_estimate);
                 //printing to the console
-                System.out.println("Board Position: " + new String(board3));
+                System.out.println("Board Position: " + new String(board2));
                 System.out.println("Positions evaluated by static estimation: " + opening.positions_eval);
                 System.out.println("MINIMAX estimate: " + opening.minimax_estimate);
             }
@@ -75,6 +76,7 @@ public class MiniMaxOpening
             if(board[i] =='W')
             {
                 board[i] = 'B';
+                continue;
             }
 
             //whats black will be white
