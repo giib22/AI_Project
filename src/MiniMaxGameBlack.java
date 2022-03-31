@@ -2,7 +2,7 @@ import java.awt.List;
 import java.io.*;
 import java.util.*;
 
-public class MiniMaxGame {
+public class MiniMaxGameBlack {
     private static int positions_eval = 0;
     private static int minimax_est = 0;
 
@@ -26,11 +26,11 @@ public class MiniMaxGame {
                 char[] board = pos.toCharArray();
 
                 //starting the game in min max GAME
-                MiniMaxGame game = new MiniMaxGame();
+                MiniMaxGameBlack game = new MiniMaxGameBlack();
 
 
                 //new board from max min
-                char[] board2 = game.MaxMin(board, depth);
+                char[] board2 = game.MinMax(board, depth);
 
 
                 //the program outputs to the second txt file
@@ -81,7 +81,7 @@ public class MiniMaxGame {
                     //return the moves
                     v = static_estimation(min_board);
                     //changing val of v with the estimation of blaack moves
-                    minimax_est = v;
+                    //minimax_est = v;
 
                     //addign to tje child
                     max_board = child.get(i);
@@ -116,6 +116,7 @@ public class MiniMaxGame {
                 if(v > static_estimation(max_board)) {
                     v = static_estimation(max_board);
                     min_board = black_child.get(i);
+                    minimax_est = v;
                 }
             }
             return min_board;
@@ -180,7 +181,7 @@ public class MiniMaxGame {
         return swapped_board;
     }
 
-     //copied from minimaxopening
+    //copied from minimaxopening
     //closeMill to  figure out if they got 1 win
     public boolean closeMill(int location, char[] copyBoard){
         char choice = copyBoard[location];
@@ -327,7 +328,7 @@ public class MiniMaxGame {
 
         //black pieces count
         int numBlackPieces = 0;
-         //= the MidgameEndgame positions generated from b by a black move.
+        //= the MidgameEndgame positions generated from b by a black move.
         ArrayList<char[]> List =  BlackgenerateMoves(board);
         int numBlackMoves = List.size();
 
@@ -395,7 +396,7 @@ public class MiniMaxGame {
                         }
                         else
                         {
-                           // else add b to L
+                            // else add b to L
                             list.add(board_copy);
                         }
                     }
@@ -424,7 +425,7 @@ public class MiniMaxGame {
                 }
                 else
                 {
-                //If no positions were added (all black pieces are in mills) add b to L.
+                    //If no positions were added (all black pieces are in mills) add b to L.
                     char board_copy[] = board.clone();
                     L.add(board_copy);
                 }
@@ -434,13 +435,13 @@ public class MiniMaxGame {
     }
 
 
-        public ArrayList generateMovesMidgameEndgame(char[] board)
-        {
+    public ArrayList generateMovesMidgameEndgame(char[] board)
+    {
         ArrayList<char[]> List = new ArrayList<char[]>();
         int white_count=0;
 
         //if the board has 3 white pieces Return the list produced by GenerateHopping
-            //itterating the board to see if there is 3 and then they increase the count
+        //itterating the board to see if there is 3 and then they increase the count
         for(int i = 0; i < board.length; i++){
             if(board[i]=='W')
             {
@@ -571,7 +572,7 @@ public class MiniMaxGame {
                 return arr;
 
             case 14 : arr = new int[]{9, 13, 17};
-            return arr;
+                return arr;
 
             case 15 :
                 arr = new int[]{7, 12, 16, 18};

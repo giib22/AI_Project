@@ -1,14 +1,14 @@
 import java.awt.List;
 import java.io.*;
 import java.util.*;
-public class MiniMaxOpening
+public class MiniMaxOpeningImproved
 {
     private static int positions_eval = 0;
     private static int  minimax_estimate = 0;
 
 
 
-// main
+    // main
     public static void main(String[] args)
     {
 
@@ -30,7 +30,7 @@ public class MiniMaxOpening
                 char[] board = pos.toCharArray();
 
                 //starting the game in min max opening
-                MiniMaxOpening opening = new MiniMaxOpening();
+                MiniMaxOpeningImproved opening = new MiniMaxOpeningImproved();
 
                 //making sure all the files are working properly
                 //System.out.println("board1.txt:"+ new String(board));
@@ -94,7 +94,7 @@ public class MiniMaxOpening
 
         if(0 < depth) {
 
-           //subtracting depth
+            //subtracting depth
             depth--;
 
             //array for the leafs
@@ -110,7 +110,8 @@ public class MiniMaxOpening
             //for each child y of x:
             for(int i=0; i < child.size(); i++) {
 
-
+                //positions_evaluated++;
+                //v = max(v, MinMax(y))
 
                 //minBoard=y
                 min_board = MinMax(child.get(i), depth);

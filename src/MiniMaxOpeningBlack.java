@@ -1,7 +1,8 @@
 import java.util.*;
 import java.io.*;
 
-public class MiniMaxOpeningBlack {
+public class MiniMaxOpeningBlack
+{
     private static int positions_eval=0;
     private static int miniMax_est = 0;
 
@@ -11,38 +12,45 @@ public class MiniMaxOpeningBlack {
         File OutputFile = new File(args[1]);
         int depth = Integer.parseInt(args[2]);
         try {
-            FileInputStream in = new FileInputStream(InputFile);
-            PrintWriter out = new PrintWriter(new FileWriter(OutputFile));
+            FileInputStream infile = new FileInputStream(InputFile);
+            PrintWriter outfile = new PrintWriter(new FileWriter(OutputFile));
 
-            Scanner scan = new Scanner(in);
+            Scanner scan = new Scanner(infile);
 
             while(scan.hasNextLine()){
 
                 //read the board file
-                String str= scan.next();
+                String pos= scan.next();
 
-                char[] board = str.toCharArray();
+                char[] board = pos.toCharArray();
                 //check if all everything was acanned correctly
                 //System.out.println(new String(board));
 
                 //constructor
                 MiniMaxOpeningBlack opening = new MiniMaxOpeningBlack();
 
-                char[] swap1 = opening.tempb(board);
 
-                //recursive
-                char[] board2 = opening.MaxMin(swap1, depth);
                 //switching back w and b
-                char[] swap2 = opening.tempb(board2);
+                //char[] board3 = opening.tempb(board);
+                //recursive getting the min max to get the correct output
+                char[] board2 = opening.MinMax(board, depth);
+                //switching back w and b
+                //char[] board4 = opening.tempb(board2);
 
-                out.println("Board Position : "+new String(swap2));
-                out.println("Positions evaluated by static estimation : "+opening.positions_eval);
-                out.println("MiniMax estimate : " +opening.miniMax_est);
+
+
+                outfile.println("Board Position : "+ new String(board2));
+                //outfile.println("Positions evaluated by static estimation : "+opening.positions_eval);
+                //outfile.println("MiniMax estimate : " +opening.miniMax_est);
+                //the program outputs to console
+                System.out.println("Board Position :" + new String(board2));
+                System.out.println("Positions evaluated by static estimation : " +  opening.positions_eval);
+                System.out.println("MINIMAX estimate : " + opening.miniMax_est);
             }
-            in.close();
-            out.close();
+            infile.close();
+            outfile.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
     }
@@ -363,11 +371,7 @@ public class MiniMaxOpeningBlack {
             char[] maxBoard;
             char[] minBoard = new char[100];
             bchild = black_generateMoves(x);
-            for(char[] black_child : bchild) {
-                System.out.println("the possible moves for black are: "+new String(black_child));
 
-            }
-            //infinity
             int v=100000000;
 
             for(int i=0;i<bchild.size();i++)

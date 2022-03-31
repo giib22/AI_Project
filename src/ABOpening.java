@@ -1,10 +1,8 @@
-
+import java.awt.List;
 import java.io.*;
 import java.util.*;
-import java.awt.*;
-
-//majority of this code is copied from MiniMaxOpening
-public class ABOpening {
+public class ABOpening
+{
     private static int positions_eval = 0;
     private static int  minimax_estimate = 0;
 
@@ -13,49 +11,55 @@ public class ABOpening {
     // main
     public static void main(String[] args)
     {
-        // TODO Auto-generated method stub
+
         File InputFile = new File(args[0]);
         File OutputFile = new File(args[1]);
         int depth = Integer.parseInt(args[2]);
         try
         {
-            FileInputStream in = new FileInputStream(InputFile);
-            PrintWriter out = new PrintWriter(new FileWriter(OutputFile));
-            //FileOutputStream fos = new FileOutputStream(fOutputFile);
-            Scanner scan= new Scanner(in);
+            FileInputStream infile = new FileInputStream(InputFile);
+            PrintWriter outfile = new PrintWriter(new FileWriter(OutputFile));
+
+            Scanner scan= new Scanner(infile);
 
             while(scan.hasNextLine()){
                 //reading the board file
-                String str= scan.next();
+                String pos= scan.next();
 
                 //adding the context of the file into a char array
-                char[] board = str.toCharArray();
+                char[] board = pos.toCharArray();
 
                 //starting the game in min max opening
                 ABOpening opening = new ABOpening();
 
                 //making sure all the files are working properly
-                //System.out.println("board from file : "+ new String(board));
+                //System.out.println("board1.txt:"+ new String(board));
                 int a= -100000;
                 int b = 1000000;
-                //board for the recursive alpha beta
-
-                char[] board2 = opening.MaxMin(board,depth,a,b);
 
 
-                //make sure everything is correct
-                System.out.println(new String(board2));
 
+                //new board from max min
+                char[] board3 = opening.MaxMin(board, depth, a, b);
+                char[] board2 = opening.tempb(board3);
 
-                //(the program replies:)
-                System.out.println("Board Position :" + new String(board2));
-                System.out.println("Positions evalsuated by static estimation : " + opening.positions_eval);
-                System.out.println("MINIMAX estimate : " + opening.minimax_estimate);
+                //printing to the board2.txt
+
+                outfile.println("Board Position: " + new String(board2));
+                outfile.println("Positions evaluated by static estimation: " + opening.positions_eval);
+                outfile.println("MINIMAX estimate: " + opening.minimax_estimate);
+                //printing to the console
+                System.out.println("Board Position: " + new String(board2));
+                System.out.println("Positions evaluated by static estimation: " + opening.positions_eval);
+                System.out.println("MINIMAX estimate: " + opening.minimax_estimate);
             }
-            in.close();
-            out.close();
+            //closing input file
+            infile.close();
+            //closing output file
+            outfile.close();
+
+
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -70,22 +74,104 @@ public class ABOpening {
         //itterate the board and swapp the things
         for(int i=0; i < board.length; i++)
         {
+            //whats white will be black
             if(board[i] =='W')
             {
                 board[i] = 'B';
-                //needs the continue or else it will switch back to white
                 continue;
             }
+
+            //whats black will be white
             if(board[i] =='B')
             {
                 board[i] = 'W';
-                //needs continue or else it will switch back to black
-                continue;
             }
         }
 
         return board;
     }
+
+    public char[] MaxMin(char[] board, int depth, int alpha, int beta) {
+
+        if(depth>0) {
+
+            depth--;
+            ArrayList<char[]> child = generateAdd(board);
+            char[] min_board;
+            char[] max_board = new char[100];
+
+
+            int v=-1000000;
+
+            for(int i = 0; i < child.size(); i++) {
+
+                min_board = MinMax(child.get(i), depth, alpha, beta);
+                if( v <static_estimation(min_board)) {
+                    v = static_estimation(min_board);
+                    //positions_evaluated++;
+                    minimax_estimate = v;
+                    max_board = child.get(i);
+                }
+                if(v>=beta) {
+
+                    return max_board;
+                }
+                else {
+
+                    alpha = Math.max(v, alpha);
+                }
+            }
+            return max_board;
+        }
+        else if(depth==0) {
+            positions_eval++;
+        }
+        return board;
+    }
+
+    public char[] MinMax(char[] board, int depth, int alpha, int beta) {
+
+        if(depth>0) {
+
+            depth--;
+            ArrayList<char[]> black_child = black_generateMoves(board);
+            char[] maxBoard;
+            char[] minBoardchoice = new char[50];
+
+
+            int v=999999;
+
+            for(int x=0; x < black_child.size(); x++) {
+
+                maxBoard = MaxMin(black_child.get(x), depth, alpha, beta);
+                if(v > static_estimation(maxBoard)) {
+
+                    v = static_estimation(maxBoard);
+                    minBoardchoice = black_child.get(x);
+                }
+                if(v<=alpha) {
+
+                    return minBoardchoice;
+                }
+                else {
+
+                    beta = Math.min(v,beta);
+                }
+            }
+            return minBoardchoice;
+        }
+        else if(depth==0) {
+            positions_eval++;
+        }
+        return board;
+    }
+
+
+
+
+
+
+
 
 
 
@@ -97,17 +183,19 @@ public class ABOpening {
         //L = empty List
         ArrayList<char[]> L = new ArrayList<char[]>();
 
+        //copy of the board
+        char board_copy[];
+
         //for each location in board:
         for(int i=0; i<board_position.length; i++)
         {
             //if the location is empty AKA x
             if(board_position[i]=='x'){
-                //copy of the board
-                char board_copy[] = board_position.clone();
+                board_copy = board_position.clone();
                 board_copy[i]='W';
 
                 //if closeMill(location, b) generateRemove(b, L) else add b to L
-                if(closeMill(i,board_copy))
+                if(closeMill(i, board_copy))
                 {
                     L = generateRemove(board_copy, L);
                 }
@@ -119,39 +207,9 @@ public class ABOpening {
         }
         return L;
     }
-    //Input: a board position and a list L
-    public ArrayList generateRemove(char[] board, ArrayList list)
-    {
-        //for the length of the board
-        for(int i=0;i<board.length;i++)
-        {
-            //if board[location]==B
-            if(board[i]=='B')
-            {
-                //if not closeMill(location, board)
-                if(!(closeMill(i,board)))
-                {
-                    //b = copy of board; b[location] = empty
-                    char copy_board[]=board.clone();
-                    copy_board[i] = 'x';
-                    //add b to L
-                    list.add(copy_board);
 
-                }
-                else {
-                    //If no positions were added (all black pieces are in mills) add b to L.
-                    char copy_boad[]=board.clone();
-                    list.add(copy_boad);
-
-                }
-            }
-        }
-        //positions are added to L by removing black pieces
-        return list;
-    }
     //closeMill to  figure out if they got 1 win
-    public boolean closeMill(int location, char[] copyBoard)
-    {
+    public boolean closeMill(int location, char[] copyBoard){
         char choice = copyBoard[location];
         if(choice =='W' || choice =='B')
         {
@@ -289,6 +347,35 @@ public class ABOpening {
     }
 
 
+    //Input: a board position and a list L
+    public ArrayList generateRemove(char[] board, ArrayList list)
+    {
+        //for the length of the board
+        for(int i=0;i<board.length;i++)
+        {
+            if(board[i]=='B')
+            {
+                if(!(closeMill(i,board))) {
+                    char copy_board[] = board.clone();
+                    copy_board[i] = 'x';
+                    list.add(copy_board);
+
+                }
+                else {
+                    //If no positions were added (all black pieces are in mills) add b to L.
+                    char copy_boad[]=board.clone();
+                    list.add(copy_boad);
+
+                }
+            }
+        }
+        //positions are added to L by removing black pieces
+        return list;
+    }
+
+
+
+
     public int static_estimation(char[] board) {
         int white_count = 0;
         int black_count = 0;
@@ -301,7 +388,7 @@ public class ABOpening {
                 black_count++;
             }
         }
-        return white_count - black_count;
+        return white_count-black_count;
     }
 
 
@@ -326,11 +413,8 @@ public class ABOpening {
             }
         }
 
-        ArrayList<char[]> moves = new ArrayList<char[]>();
+        ArrayList<char[]> moves = generateAdd(board);
         ArrayList<char[]> swap = new ArrayList<char[]>();
-
-        moves = generateAdd(board);
-
 
 
         for(char[] x : moves) {
@@ -348,79 +432,7 @@ public class ABOpening {
         }
         return swap;
     }
-    public char[] MaxMin(char[] x, int depth, int a, int b) {
-
-        if(depth>0) {
-
-            depth--;
-            ArrayList<char[]> child = generateAdd(x);
-            char[] minBoard;
-            char[] maxBoardchoice = new char[50];
 
 
-            int v=-999999;
-
-            for(int i=0;i<child.size();i++) {
-
-                minBoard = MinMax(child.get(i), depth, a, b);
-                if(v<static_estimation(minBoard)) {
-                    v = static_estimation(minBoard);
-                    //positions_evaluated++;
-                    minimax_estimate = v;
-                    maxBoardchoice = child.get(i);
-                }
-                if(v>=b) {
-
-                    return maxBoardchoice;
-                }
-                else {
-
-                    a = Math.max(v,a);
-                }
-            }
-            return maxBoardchoice;
-        }
-        else if(depth==0) {
-            positions_eval++;
-        }
-        return x;
-    }
-
-    public char[] MinMax(char[] board, int depth, int a, int b) {
-
-        if(depth>0) {
-
-            depth--;
-            ArrayList<char[]> black_child = black_generateMoves(board);
-            char[] maxBoard;
-            char[] minBoardchoice = new char[50];
-
-
-            int v=999999;
-
-            for(int i=0; i < black_child.size(); i++) {
-
-                maxBoard = MaxMin(black_child.get(i), depth, a, b);
-                if(v > static_estimation(maxBoard)) {
-
-                    v = static_estimation(maxBoard);
-                    minBoardchoice = black_child.get(i);
-                }
-                if(v<=a) {
-
-                    return minBoardchoice;
-                }
-                else {
-
-                    b = Math.min(v,b);
-                }
-            }
-            return minBoardchoice;
-        }
-        else if(depth==0) {
-            positions_eval++;
-        }
-        return board;
-    }
 
 }

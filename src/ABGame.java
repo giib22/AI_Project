@@ -1,88 +1,197 @@
+import java.awt.List;
 import java.io.*;
 import java.util.*;
-import java.awt.*;
 
-public class ABGame
-{
+
+public class ABGame {
     private static int positions_eval = 0;
-    private static int  minimax_estimate = 0;
+    private static int minimax_est = 0;
 
-    public static void main(String[] args)
-    {
-        // TODO Auto-generated method stub
+    public static void main(String[] args) {
+
         File InputFile = new File(args[0]);
         File OutputFile = new File(args[1]);
         int depth = Integer.parseInt(args[2]);
-        try
-        {
-            FileInputStream in = new FileInputStream(InputFile);
-            PrintWriter out = new PrintWriter(new FileWriter(OutputFile));
-            //FileOutputStream fos = new FileOutputStream(fOutputFile);
-            Scanner scan= new Scanner(in);
+        try {
+            FileInputStream infile = new FileInputStream(InputFile);
+            PrintWriter outfile = new PrintWriter(new FileWriter(OutputFile));
 
-            while(scan.hasNextLine()){
+
+            Scanner scan = new Scanner(infile);
+
+            while (scan.hasNextLine()) {
                 //reading the board file
-                String str= scan.next();
+                String pos = scan.next();
 
                 //adding the context of the file into a char array
-                char[] board = str.toCharArray();
+                char[] board = pos.toCharArray();
 
-                //starting the game in min max opening
+                //starting the game in min max GAME
                 ABGame game = new ABGame();
 
-                //making sure all the files are working properly
-                //System.out.println("board from file : "+ new String(board));
-                // -infinity and positive infinity for the abprunning
-                int a= -100000;
-                int b = 1000000;
-                //board for the recursive alpha beta
-                char[] board2 = game.MaxMin(board,depth,a,b);
+                int alpha= -100000;
+                int beta = 1000000;
+                //new board from max min
+                char[] board2 = game.MaxMin(board, depth, alpha, beta);
 
-                //make sure everything is correct
-                System.out.println(new String(board2));
 
-                //(the program replies:)
-               out.println("Board Position :" + new String(board2));
-               out.println("Positions evaluated by static estimation : " + game.positions_eval);
-               out.println("MINIMAX estimate : " + game.minimax_estimate);
+                //the program outputs to the second txt file
+                outfile.println("Board Position :" + new String(board2));
+                //outfile.println("Positions evaluated by static estimation : " + game.positions_eval);
+                //outfile.println("MINIMAX estimate : " + game.minimax_est);
+                //the program outputs to console
+                System.out.println("Board Position :" + new String(board2));
+                System.out.println("Positions evaluated by static estimation : " + game.positions_eval);
+                System.out.println("MINIMAX estimate : " + game.minimax_est);
             }
-            in.close();
-            out.close();
+            infile.close();
+            outfile.close();
+
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    public ArrayList generateAdd(char[] board_position) {
 
-        //L = empty List
-        ArrayList<char[]> L = new ArrayList<char[]>();
 
-        //copy of the board
-        char board_copy[];
 
-        //for each location in board:
-        for(int i=0; i<board_position.length; i++)
-        {
-            //if the location is empty AKA x
-            if(board_position[i]=='x'){
-                board_copy = board_position.clone();
-                board_copy[i]='W';
+    public char[] MaxMin(char[] board, int depth, int a, int b) {
 
-                //if closeMill(location, b) generateRemove(b, L) else add b to L
-                if(closeMill(i, board_copy))
-                {
-                    L = generateRemove(board_copy, L);
+        if(0 < depth) {
+
+
+
+            ArrayList<char[]> white_board = generateMovesMidgameEndgame(board);
+            char[] min_board;
+            char[] max_board = new char[100];
+
+
+            depth--;
+            //this is supposed to be infinity
+            int v = -100000;
+            for(int i = 0; i < white_board.size(); i++) {
+
+                min_board = MinMax(white_board.get(i), depth, a, b);
+                if(static_estimation(min_board) > v) {
+                    v = static_estimation(min_board);
+
+                    //v holds the value of static int
+                    minimax_est = v;
+                    max_board = white_board.get(i);
                 }
-                else
-                {
-                    L.add(board_copy);
+                if(b <= v) {
+                    return max_board;
+                }
+                else {
+                    a = Math.max(v,a);
                 }
             }
+            return max_board;
         }
-        return L;
+        else if(0 == depth) {
+            positions_eval++;
+        }
+        return board;
     }
+
+    public char[] MinMax(char[] board, int depth, int a, int b) {
+
+        if(0 < depth) {
+
+
+            ArrayList<char[]> black_board = BlackgenerateMoves(board);
+            char[] maxBoard;
+            char[] minBoardchoice = new char[50];
+
+
+            //this is supposed to be infinity
+            int v = 1000000;
+            //subtract depth before loop
+            depth--;
+            for(int i=0;i<black_board.size();i++) {
+
+                maxBoard = MaxMin(black_board.get(i), depth, a, b);
+                if(v>static_estimation(maxBoard)) {
+
+                    v = static_estimation(maxBoard);
+                    minBoardchoice = black_board.get(i);
+                }
+                if(v<=a) {
+
+                    return minBoardchoice;
+                }
+                else {
+
+                    b = Math.min(v,b);
+                }
+            }
+            return minBoardchoice;
+        }
+        else if(0 == depth) {
+            positions_eval++;
+        }
+        return board;
+    }
+
+    //generate black moves
+    public ArrayList BlackgenerateMoves(char[] board)
+    {
+        char[] board_swap = tempb(board);
+
+        //black_board will get its contents from GMME method
+
+        ArrayList<char[]> black_board = generateMovesMidgameEndgame(board_swap);
+        ArrayList<char[]> black_swap = new ArrayList<char[]>();;
+
+
+        //for each position in the black boaard
+        for(char[] x : black_board)
+        {
+            char[] board2 = x;
+            for(int i = 0; i < board2.length; i++)
+            {
+                if(board2[i] =='W')
+                {
+                    board2[i] = 'B';
+                    continue;
+                }
+                if(board2[i]=='B')
+                {
+                    board2[i] = 'W';
+                }
+            }
+            black_swap.add(x);
+        }
+        return black_swap;
+    }
+
+
+
+    //compute the board tempb by swapping the colors in b. Replace each W by a B, and each B by a W.
+    public char[] tempb(char[] board)
+    {
+        //make a copy of the board
+        char[] swapped_board = board.clone();
+
+        //itterate the board and swapp the things
+        for(int i=0; i < swapped_board.length; i++)
+        {
+            if(swapped_board[i] =='W')
+            {
+                swapped_board[i] = 'B';
+                continue;
+            }
+            if(swapped_board[i] =='B')
+            {
+                swapped_board[i] = 'W';
+            }
+        }
+
+        return swapped_board;
+    }
+
+    //copied from minimaxopening
+    //closeMill to  figure out if they got 1 win
     public boolean closeMill(int location, char[] copyBoard){
         char choice = copyBoard[location];
         if(choice =='W' || choice =='B')
@@ -220,6 +329,200 @@ public class ABGame
         return false;
     }
 
+
+    //static estimation
+    public int static_estimation(char[] board) {
+        //white pieces count
+        int numWhitePieces = 0;
+
+        //black pieces count
+        int numBlackPieces = 0;
+        //= the MidgameEndgame positions generated from b by a black move.
+        ArrayList<char[]> List =  BlackgenerateMoves(board);
+
+        int numBlackMoves = List.size();
+
+
+        //from the board
+        for (int i = 0; i < board.length; i++)
+        {
+            if (board[i] == 'W')
+            {
+                numWhitePieces++;
+            } else if (board[i] == 'B')
+            {
+                numBlackPieces++;
+            }
+        }
+
+        //if (numBlackPieces ≤ 2) return(10000)
+        if (numBlackPieces <= 2)
+        {
+            return 10000;
+        }
+
+        //else if (numWhitePieces ≤ 2) return(-10000)
+        else if (numWhitePieces <= 2)
+        {
+            return -10000;
+        } //else if (numBlackMoves==0) return(10000)
+        else if (numBlackMoves == 0)
+        {
+            return 10000;
+        } //else return ( 1000(numWhitePieces − numBlackPieces) - numBlackMoves)
+        else
+        {
+            return ((1000 * (numWhitePieces - numBlackPieces)) - numBlackMoves);
+        }
+    }
+
+
+    public ArrayList generateHopping(char[] board)
+    {
+        //L = empty list
+        ArrayList<char[]> list = new ArrayList<char[]>();
+        //for each location α in board
+        for(int a = 0; a < board.length; a++)
+        {
+            //if board[α] == W
+            if(board[a] == 'W')
+            {
+                //for each location β in board
+                for(int b = 0; b < board.length; b++)
+                {
+                    //if board[β] == empty aka x
+                    if(board[b] == 'x')
+                    {
+                        //b = copy of board; b[α] = empty; b[β] = W
+                        char board_copy[] = board.clone();
+                        board_copy[a]='x';
+                        board_copy[b]='W';
+
+
+                        //if closeMill(β, b) generateRemove(b, L)
+                        if(closeMill(b, board_copy))
+                        {
+                            generateRemove(board_copy, list);
+                        }
+                        else
+                        {
+                            // else add b to L
+                            list.add(board_copy);
+                        }
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
+
+    public ArrayList generateRemove(char[] board, ArrayList L)
+    {
+        // need a new list or else it returns the original for some reason
+        ArrayList list =(ArrayList) L.clone();
+        //for each location in board:
+        for(int i = 0; i < board.length; i++)
+        {
+
+            if(board[i] == 'B')
+            {
+                //if not closeMill(location, board)
+                if(!(closeMill(i,board)))
+                {
+
+                    //b = copy of board; b[location] = empty
+                    char board_copy[] = board.clone();
+                    board_copy[i] = 'x';
+
+                    //add b to L
+                    list.add(board_copy);
+
+                }
+                else
+                {
+                    //If no positions were added (all black pieces are in mills) add b to L.
+                    char board_copy[] = board.clone();
+                    list.add(board_copy);
+                }
+            }
+        }
+        return list;
+    }
+
+
+    public ArrayList generateMovesMidgameEndgame(char[] board)
+    {
+        ArrayList<char[]> List = new ArrayList<char[]>();
+        int white_count=0;
+
+        //if the board has 3 white pieces Return the list produced by GenerateHopping
+        //itterating the board to see if there is 3 and then they increase the count
+        for(int i = 0; i < board.length; i++){
+            if(board[i]=='W')
+            {
+                white_count++;
+            }
+        }
+        if(white_count==3)
+        {
+            //Return the list produced by GenerateHopping
+            //applied to the board
+            List = generateHopping(board);
+            return List;
+        }
+        else
+        {
+            //Otherwise return the list produced by GenerateMove applied to the board.
+            List = generateMove(board);
+            return List;
+        }
+
+
+    }
+
+    public ArrayList generateMove(char[] board)
+    {
+        //empty list
+        ArrayList<char[]> list = new ArrayList<char[]>();
+
+        //for each location in board
+        for(int i = 0; i < board.length; i++){
+            //if board loacation =='w'
+            if(board[i]=='W')
+            {
+                //make a list of neighbors location
+                //**** CREATE NEIGHBORS METHOD*****
+                int[] list2 = neighbors(i);
+
+                //for each j in n
+                for(int j: list2)
+                {
+                    //if board in location j empty
+                    if(board[j] =='x')
+                    {
+                        //b = copy of board; b[location] = empty; b[j]=W
+                        char board_copy[] = board.clone();
+                        board_copy[i]='x';
+                        board_copy[j]='W';
+
+                        //if closeMill(j, b) GenerateRemove(b, L)
+                        if(closeMill(j, board_copy))
+                        {
+                            generateRemove(board_copy, list);
+                        }
+                        //else add b to L
+                        else
+                        {
+                            list.add(board_copy);
+                        }
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
     public int[] neighbors(int j)
     {
         //array to input the neighbors
@@ -313,328 +616,8 @@ public class ABGame
             default:
                 arr = new int[]{};
                 return arr;
-
-        }
-
-
-    }
-
-    public ArrayList generateMovesMidgameEndgame(char[] board)
-    {
-        ArrayList<char[]> List = new ArrayList<char[]>();
-        int white_count=0;
-
-        //if the board has 3 white pieces Return the list produced by GenerateHopping
-        //itterating the board to see if there is 3 and then they increase the count
-        for(int i = 0; i < board.length; i++){
-            if(board[i]=='W')
-            {
-                white_count++;
-            }
-        }
-        if(white_count==3)
-        {
-            //Return the list produced by GenerateHopping
-            //applied to the board
-            List = generateHopping(board);
-            return List;
-        }
-        else
-        {
-            //Otherwise return the list produced by GenerateMove applied to the board.
-            List = generateMove(board);
-            return List;
-        }
-
-
-
-    }
-    public ArrayList generateMove(char[] board)
-    {
-        //empty list
-        ArrayList<char[]> list = new ArrayList<char[]>();
-
-        //for each location in board
-        for(int i = 0; i < board.length; i++){
-            //if board loacation =='w'
-            if(board[i]=='W')
-            {
-                //make a list of neighbors location
-                //**** CREATE NEIGHBORS METHOD*****
-                int[] n_list = neighbors(i);
-
-                //for each j in n
-
-                for(int j: n_list)
-                {
-                    //if board in location j empty
-                    if(board[j]=='x')
-                    {
-                        //b = copy of board; b[location] = empty; b[j]=W
-                        char board_copy[] = board.clone();
-                        board_copy[i]='x';
-                        board_copy[j]='W';
-
-                        //if closeMill(j, b) GenerateRemove(b, L)
-                        if(closeMill(j, board_copy))
-                        {
-                            generateRemove(board_copy, list);
-                        }
-                        //else add b to L
-                        else
-                        {
-                            list.add(board);
-                        }
-                    }
-                }
-            }
-        }
-        return list;
-    }
-    public ArrayList generateHopping(char[] board)
-    {
-        //L = empty list
-        ArrayList<char[]> list = new ArrayList<char[]>();
-        //for each location α in board
-        for(int a = 0; a < board.length; a++)
-        {
-            //if board[α] == W
-            if(board[a] == 'W')
-            {
-                //for each location β in board
-                for(int b = 0; b < board.length; b++)
-                {
-                    //if board[β] == empty aka x
-                    if(board[b] == 'x')
-                    {
-                        //b = copy of board; b[α] = empty; b[β] = W
-                        char board_copy[] = board.clone();
-                        board_copy[a]='x';
-                        board_copy[b]='W';
-
-
-                        //if closeMill(β, b) generateRemove(b, L)
-                        if(closeMill(b, board_copy))
-                        {
-                            generateRemove(board_copy, list);
-                        }
-                        else
-                        {
-                            // else add b to L
-                            list.add(board_copy);
-                        }
-                    }
-                }
-            }
-        }
-        return list;
-    }
-
-    public ArrayList generateRemove(char[] board, ArrayList L)
-    {
-
-        //for each location in board:
-        for(int i = 0; i < board.length; i++)
-        {
-            if(board[i] == 'B')
-            {
-                //if not closeMill(location, board)
-                if(!(closeMill(i,board)))
-                {
-                    char board_copy[]=board.clone();
-                    board_copy[i] = 'x';
-                    L.add(board_copy);
-
-                }
-                else
-                {
-                    //If no positions were added (all black pieces are in mills) add b to L.
-                    char board_copy[]=board.clone();
-                    L.add(board_copy);
-                }
-            }
-        }
-        return L;
-    }
-    //generate black moves
-    public ArrayList BlackgenerateMoves(char[] board)
-    {
-        //similar to the tempb method
-        for(int i = 0; i < board.length; i++)
-        {   //if theyre white make black
-            if(board[i]=='W') {
-                board[i] = 'B';
-                continue;
-            }
-
-            //if theyre black make white
-            if(board[i]=='B')
-            {
-                board[i] = 'W';
-            }
-        }
-
-        //black_board will get its contents from GMME method
-        ArrayList<char[]> black_board = generateMovesMidgameEndgame(board);
-        ArrayList<char[]> black_swap = new ArrayList<char[]>();
-
-        for(char[] x : black_board)
-        {
-            char[] board2 = x;
-            for(int i = 0; i < board2.length; i++)
-            {
-                if(board2[i] =='W')
-                {
-                    board2[i] = 'B';
-                    continue;
-                }
-                if(board2[i]=='B')
-                {
-                    board2[i] = 'W';
-                }
-            }
-            black_swap.add(x);
-        }
-        return black_swap;
-    }
-
-    //compute the board tempb by swapping the colors in b. Replace each W by a B, and each B by a W.
-    public char[] tempb(char[] swapped_board)
-    {
-
-        //itterate the board and swapp the things
-        for(int i=0; i < swapped_board.length; i++)
-        {
-            if(swapped_board[i] =='W')
-            {
-                swapped_board[i] = 'B';
-            }
-            if(swapped_board[i] =='B')
-            {
-                swapped_board[i] = 'W';
-            }
-        }
-
-        return swapped_board;
-    }
-    public char[] MaxMin(char[] x, int depth, int a, int b) {
-
-        if(depth>0) {
-            System.out.println("current depth at MaxMin is"+depth);
-            depth--;
-            ArrayList<char[]> children = new ArrayList<char[]>();
-            char[] minBoard;
-            char[] maxBoardchoice = new char[50];
-            children = generateAdd(x);
-            for(char[] c : children) {
-                System.out.println("the possible moves for white are: "+new String(c));
-            }
-            int v=-999999;
-
-            for(int i=0;i<children.size();i++) {
-
-                minBoard = MinMax(children.get(i), depth, a, b);
-                if(v<static_estimation(minBoard)) {
-                    v = static_estimation(minBoard);
-                    //positions_evaluated++;
-                    minimax_estimate = v;
-                    maxBoardchoice = children.get(i);
-                }
-                if(v>=b) {
-
-                    return maxBoardchoice;
-                }
-                else {
-
-                    a = Math.max(v,a);
-                }
-            }
-            return maxBoardchoice;
-        }
-        else if(depth==0) {
-            positions_eval++;
-        }
-        return x;
-    }
-
-    public char[] MinMax(char[] x, int depth, int a, int b) {
-
-        if(depth>0) {
-            System.out.println("current depth at MinMax is"+depth);
-            depth--;
-            ArrayList<char[]> bchildren = new ArrayList<char[]>();
-            char[] maxBoard;
-            char[] minBoardchoice = new char[50];
-            bchildren = BlackgenerateMoves(x);
-            for(char[] bc : bchildren) {
-                System.out.println("the possible moves for black are: "+new String(bc));
-            }
-            int v=999999;
-
-            for(int i=0;i<bchildren.size();i++) {
-
-                maxBoard = MaxMin(bchildren.get(i), depth, a, b);
-                if(v>static_estimation(maxBoard)) {
-
-                    v = static_estimation(maxBoard);
-                    minBoardchoice = bchildren.get(i);
-                }
-                if(v<=a) {
-
-                    return minBoardchoice;
-                }
-                else {
-
-                    b = Math.min(v,b);
-                }
-            }
-            return minBoardchoice;
-        }
-        else if(depth==0) {
-            positions_eval++;
-        }
-        return x;
-    }
-    public int static_estimation(char[] board) {
-        //white pieces count
-        int numWhitePieces = 0;
-
-        //black pieces count
-        int numBlackPieces = 0;
-        ArrayList<char[]> List =  BlackgenerateMoves(board);
-        int numBlackMoves = List.size();
-
-
-        //from the board
-        for (int i = 0; i < board.length; i++)
-        {
-            if (board[i] == 'W')
-            {
-                numWhitePieces++;
-            } else if (board[i] == 'B')
-            {
-                numBlackPieces++;
-            }
-        }
-
-        //if (numBlackPieces ≤ 2) return(10000)
-        if (numBlackPieces <= 2)
-        {
-            return 10000;
-        }
-
-        //else if (numWhitePieces ≤ 2) return(-10000)
-        else if (numWhitePieces <= 2)
-        {
-            return -10000;
-        } //else if (numBlackMoves==0) return(10000)
-        else if (numBlackMoves == 0)
-        {
-            return 10000;
-        } //else return ( 1000(numWhitePieces − numBlackPieces) - numBlackMoves)
-        else
-        {
-            return ((1000 * (numWhitePieces - numBlackPieces)) - numBlackMoves);
         }
     }
+
 }
+
